@@ -1,0 +1,75 @@
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+
+
+<div class="container">
+
+    <div class="left-section">
+        <!-- Left-side image -->
+        <img src="{{ url_for('static', filename='skilltracker.jpeg') }}" alt=" Student Illustration ">
+
+    </div>
+    <div class="right-section">
+
+        <div class="logo-area ">
+            <h2>skilltracker</h2>
+        </div>
+
+        <h1>Welcome To Skillo</h1>
+        <p>Register to manage your skills.</p>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <label for="email">Enter your Email</label>
+            <input type="email" id="email" name="email" placeholder="Email">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Password">
+            <label for="cpassword">Confirm Password</label>
+            <input type="password" id="cpassword" name="cpassword" placeholder="Confirm Password">
+
+
+
+            <div class="options">
+                <label class="options-title">Register as</label>
+
+                <div class="roles">
+                    <label>
+            <input type="radio" name="role" value="user" checked>
+            User
+        </label>
+
+                    <label>
+            <input type="radio" name="role" value="admin">
+            Admin
+        </label>
+                </div>
+            </div>
+            <!-- Secret Key Field (hidden by default) -->
+            <div id="secretKeyBox" style="display:none; margin-bottom: 15px;">
+                <label>Admin Secret Key</label>
+                <input type="text" name="secret_key" placeholder="Enter admin secret key">
+            </div>
+
+            <button type="submit">Register Now</button>
+            <div class="login">
+                <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login Now</a></p>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const userRadio = document.querySelector('input[value="user"]');
+    const adminRadio = document.querySelector('input[value="admin"]');
+    const secretBox = document.getElementById('secretKeyBox');
+
+    function toggleSecretBox() {
+        if (adminRadio.checked) {
+            secretBox.style.display = "block";
+        } else {
+            secretBox.style.display = "none";
+        }
+    }
+
+    userRadio.addEventListener("change", toggleSecretBox);
+    adminRadio.addEventListener("change", toggleSecretBox);
+</script>
