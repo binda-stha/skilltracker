@@ -11,7 +11,7 @@ def get_db_connection():
         host="localhost",
         user="root",
         password="",   # default XAMPP MySQL password is empty
-        database="skilltracker",
+        database="skillTracker",
         cursorclass=pymysql.cursors.DictCursor
     )
     return conn

@@ -16,6 +16,11 @@
 
         <h1>Welcome To Skillo</h1>
         <p>Login to manage your skills.</p>
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
 
         <form method="POST" action="{{ url_for('auth.login') }}">
             <label for="email">Email</label>

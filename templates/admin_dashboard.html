@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Skilltracker</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header>
+            <div class="logo-area">
+                <h2>skilltracker</h2>
+            </div>
+            <nav>
+                <a href="{{ url_for('auth.login') }}" class="logout-btn">Logout</a>
+            </nav>
+        </header>
+
+        <main>
+            <h1>Admin Dashboard</h1>
+            <p>Welcome, Admin! You have full access to the system.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %} {% endif %} {% endwith %}
+
+            <div class="admin-features">
+                <div class="feature-card">
+                    <h3>👥 Manage Users</h3>
+                    <p>View, edit, and delete user accounts</p>
+                    <button>Go to Users</button>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📊 View Reports</h3>
+                    <p>Access system analytics and reports</p>
+                    <button>View Reports</button>
+                </div>
+
+                <div class="feature-card">
+                    <h3>⚙️ System Settings</h3>
+                    <p>Configure system preferences</p>
+                    <button>Settings</button>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🎯 Skill Management</h3>
+                    <p>Manage skills and categories</p>
+                    <button>Manage Skills</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>

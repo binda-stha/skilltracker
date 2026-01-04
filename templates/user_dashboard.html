@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Skilltracker</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <header>
+            <div class="logo-area">
+                <h2>skilltracker</h2>
+            </div>
+            <nav>
+                <a href="{{ url_for('auth.login') }}" class="logout-btn">Logout</a>
+            </nav>
+        </header>
+
+        <main>
+            <h1>User Dashboard</h1>
+            <p>Welcome! Track and manage your skills here.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %} {% endif %} {% endwith %}
+
+            <div class="user-features">
+                <div class="feature-card">
+                    <h3>➕ Add Skills</h3>
+                    <p>Add new skills to track your progress</p>
+                    <button>Add Skill</button>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📈 Track Progress</h3>
+                    <p>Monitor your skill development</p>
+                    <button>View Progress</button>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📋 My Skills</h3>
+                    <p>View all your tracked skills</p>
+                    <button>View Skills</button>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🎯 Set Goals</h3>
+                    <p>Define and track your learning goals</p>
+                    <button>Set Goals</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+
+</html>
