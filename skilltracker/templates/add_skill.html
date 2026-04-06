@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Skill - SkillTracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <div class="form-container">
+        <nav class="mb-4">
+            <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+        </nav>
+
+        <h2 class="form-title">📚 Add New Skill</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+            {{ message }}
+            <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'">×</button>
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
+
+        <form method="POST" action="{{ url_for('auth.add_skill') }}">
+            <!-- Skill Name -->
+            <div class="mb-3">
+                <label for="skill_name" class="form-label">Skill Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="skill_name" name="skill_name" placeholder="e.g., Python, JavaScript, Data Analysis" required>
+
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Add details about this skill..."></textarea>
+
+            </div>
+
+            <!-- Initial Progress -->
+            <div class="mb-3">
+                <label for="progress" class="form-label">Initial Progress (%)</label>
+                <input type="number" class="form-control" id="progress" name="progress" min="0" max="100" value="0">
+
+
+            </div>
+
+            <!-- Target Hours -->
+            <div class="mb-3">
+                <label for="target_hours" class="form-label">Target Learning Hours</label>
+                <input type="number" class="form-control" id="target_hours" name="target_hours" min="0" value="0" step="1" required>
+
+            </div>
+
+            <!-- Target Date -->
+            <div class="mb-3">
+                <label for="target_date" class="form-label">Target Completion Date (optional)</label>
+                <input type="date" class="form-control" id="target_date" name="target_date">
+
+                <!-- CSRF Token -->
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                <!-- Buttons -->
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn btn-lg" style="flex-grow: 1;">✅ Add Skill</button>
+                    <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-light btn-lg">Cancel</a>
+                </div>
+        </form>
+        </div>
+
+        <script>
+            document.getElementById('progress').addEventListener('input', function() {
+                const value = this.value;
+                document.getElementById('progress_bar').style.width = value + '%';
+                document.getElementById('progress_bar').textContent = value + '%';
+            });
+        </script>
+</body>
+
+</html>

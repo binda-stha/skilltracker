@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Certification - SkillTracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar-custom">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 40px;">
+            <a href="{{ url_for('auth.user_dashboard') }}" style="color: white; font-family: var(--font-head); font-weight: 700; font-size: 24px; text-decoration: none;">
+                <i class="fas fa-chart-line" style="margin-right: 10px;"></i>SkillTracker
+            </a>
+            <div style="display: flex; gap: 20px;">
+                <a href="{{ url_for('auth.user_dashboard') }}" style="color: white; text-decoration: none;">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" style="color: white; text-decoration: none;">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <div style="background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;">
+                <div style="background: var(--primary); color: white; padding: 20px;">
+                    <h3 style="margin: 0; font-family: var(--font-head); font-weight: 600;">
+                        <i class="fas fa-certificate" style="margin-right: 10px;"></i>Add Certification
+                    </h3>
+                </div>
+                <div style="padding: 30px;">
+                    {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+                    <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+                        {{ message }}
+                        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'">×</button>
+                    </div>
+                    {% endfor %} {% endif %} {% endwith %}
+
+                    <form method="POST" action="{{ url_for('auth.add_certification') }}">
+                        <div style="margin-bottom: 20px;">
+                            <label for="certification_name" class="form-label">Certification Name *</label>
+                            <input type="text" class="form-control" id="certification_name" name="certification_name" placeholder="e.g., AWS Certified Solutions Architect" required>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label for="issuing_organization" class="form-label">Issuing Organization *</label>
+                            <input type="text" class="form-control" id="issuing_organization" name="issuing_organization" placeholder="e.g., Amazon Web Services" required>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            <div>
+                                <label for="year" class="form-label">Year Obtained *</label>
+                                <input type="number" class="form-control" id="year" name="year" min="1950" max="2030" required>
+                            </div>
+                            <div>
+                                <label for="expiry_date" class="form-label">Expiry Date</label>
+                                <input type="date" class="form-control" id="expiry_date" name="expiry_date">
+                                <small class="form-text text-muted">Leave empty if certification doesn't expire</small>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Describe what this certification covers, skills demonstrated, or key learnings..."></textarea>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label for="credential_id" class="form-label">Credential ID</label>
+                            <input type="text" class="form-control" id="credential_id" name="credential_id" placeholder="e.g., AWS-123456789">
+                        </div>
+
+                        <div style="margin-bottom: 30px;">
+                            <label for="credential_url" class="form-label">Credential URL</label>
+                            <input type="url" class="form-control" id="credential_url" name="credential_url" placeholder="https://verify.certification.com/credential-id">
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Back to Profile
+                            </a>
+                            <button type="submit" class="btn">
+                                    <i class="fas fa-save" style="margin-right: 8px;"></i> Add Certification
+                                </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Experience - SkillTracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar-custom">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
+            <a href="{{ url_for('auth.user_dashboard') }}" style="text-decoration:none; color:white; font-weight:700;">📈 SkillTracker</a>
+            <div style="display: flex; gap: 12px;">
+                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-ghost">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-briefcase" style="margin-right: 8px;"></i>Add Professional Experience</h3>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
+                    </div>
+                    {% endfor %} {% endif %} {% endwith %}
+
+                    <form method="POST" action="{{ url_for('auth.add_experience') }}">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="position">Position/Title *</label>
+                                <input type="text" class="form-control" id="position" name="position" placeholder="e.g., Software Developer" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="company">Company *</label>
+                                <input type="text" class="form-control" id="company" name="company" placeholder="e.g., Tech Solutions Inc." required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Kathmandu, Nepal">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="start_date">Start Date *</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="end_date">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date">
+                                <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">Leave empty if currently employed</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Job Description *</label>
+                            <textarea class="form-control" id="description" name="description" rows="5" placeholder="Describe your responsibilities, achievements, and key contributions..." required></textarea>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>Back to Profile
+                            </a>
+                            <button type="submit" class="btn">
+                                    <i class="fas fa-save" style="margin-right: 8px;"></i>Add Experience
+                                </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillTracker - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <!-- ---------------- NAVBAR ---------------- -->
+    <nav>
+        <a href="{{ url_for('auth.user_dashboard') }}" class="brand"><i class="fas fa-bolt"></i> Skill<span>Tracker</span></a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('auth.user_dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('auth.add_skill') }}"><i class="fas fa-plus"></i> Add Skill</a></li>
+            <li><a href="{{ url_for('auth.add_log') }}"><i class="fas fa-clock"></i> Log Hours</a></li>
+            <li><a href="{{ url_for('auth.view_logs') }}"><i class="fas fa-list"></i> Logs</a></li>
+            <li><a href="{{ url_for('auth.edit_profile') }}"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="{{ url_for('auth.generate_cv') }}"><i class="fas fa-file-alt"></i> CV</a></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="danger"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            <li><span class="nav-chip">{{ session.email }}</span></li>
+        </ul>
+    </nav>
+
+    <!-- ---------------- MAIN ---------------- -->
+    <div class="main">
+
+        <!-- Welcome -->
+        <div class="card welcome-card">
+            <div class="welcome-content">
+                <div>
+                    <div class="welcome-sub">Welcome back</div>
+                    <div class="welcome-name">{{ full_name }}</div>
+                    <div class="welcome-email">{{ session.email }}</div>
+                </div>
+                <div class="welcome-buttons">
+                    <a href="{{ url_for('auth.add_skill') }}" class="btn btn-accent"><i class="fas fa-plus"></i> Add Skill</a>
+                    <a href="{{ url_for('auth.add_log') }}" class="btn btn-white"><i class="fas fa-clock"></i> Log Hours</a>
+                    <a href="{{ url_for('auth.generate_cv') }}" class="btn btn-ghost"><i class="fas fa-file-alt"></i> CV</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended Skill Card -->
+        {% if recommended_skill %}
+        <div class="card recommendation-card">
+            <div class="rec-header">
+                <i class="fas fa-lightbulb rec-icon"></i>
+                <div class="rec-title">Recommended Skill to Focus On</div>
+            </div>
+            <div class="rec-content">
+                <div class="rec-skill-name">{{ recommended_skill.skill_name }}</div>
+                <div class="rec-remaining">
+                    <span class="rec-label">Remaining Hours:</span>
+                    <span class="rec-value">{{ recommended_skill.remaining_hours }}</span>
+                </div>
+                <div class="rec-message">
+                    You still have <strong>{{ recommended_skill.remaining_hours }} hours</strong> remaining to reach your goal of <strong>{{ recommended_skill.target_hours }} hours</strong>. Keep practicing!
+                </div>
+                <a href="{{ url_for('auth.add_log') }}" class="btn btn-accent btn-sm"><i class="fas fa-plus"></i> Log Hours Now</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Summary stats -->
+        <div class="stat-grid stat-grid-margin">
+            <div class="stat-tile">
+                <div class="stat-val">{{ total_skills }}</div>
+                <div class="stat-lbl">Skills Tracked</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-val">{{ total_hours }}</div>
+                <div class="stat-lbl">Total Hours</div>
+            </div>
+            <div class="stat-tile hot">
+                <div class="stat-val">{{ most_practiced_skill }}</div>
+                <div class="stat-lbl">Most Practiced</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-val">{{ proficiency_level }}</div>
+                <div class="stat-lbl">Your Level</div>
+            </div>
+        </div>
+
+        <!-- Progress stats -->
+        <div class="stat-grid progress-stats-margin">
+            <div class="stat-tile">
+                <div class="stat-val">{{ average_progress }}%</div>
+                <div class="stat-lbl">Avg Progress</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-val">{{ completed_skills }}</div>
+                <div class="stat-lbl">Completed</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-val">{{ total_skills - completed_skills }}</div>
+                <div class="stat-lbl">In Progress</div>
+            </div>
+            <div class="stat-tile breakdown">
+                <div class="level-breakdown-title">Level Breakdown</div>
+                <div class="level-breakdown-row">
+                    <span class="badge badge-expert">Expert</span><span style="font-weight:700;font-size:.85rem">{{ proficiency_breakdown.expert }}</span>
+                </div>
+                <div class="level-breakdown-row">
+                    <span class="badge badge-advanced">Advanced</span><span style="font-weight:700;font-size:.85rem">{{ proficiency_breakdown.advanced }}</span>
+                </div>
+                <div class="level-breakdown-row">
+                    <span class="badge badge-intermediate">Intermediate</span><span style="font-weight:700;font-size:.85rem">{{ proficiency_breakdown.intermediate }}</span>
+                </div>
+                <div class="level-breakdown-row">
+                    <span class="badge badge-beginner">Beginner</span><span style="font-weight:700;font-size:.85rem">{{ proficiency_breakdown.beginner }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div>
+            <div class="actions">
+                <a href="{{ url_for('auth.add_skill') }}" class="btn btn-dark"><i class="fas fa-plus-circle"></i> Add Skill</a>
+                <a href="{{ url_for('auth.add_log') }}" class="btn btn-outline"><i class="fas fa-clock"></i> Log Hours</a>
+                <a href="{{ url_for('auth.view_logs') }}" class="btn btn-outline"><i class="fas fa-list-alt"></i> View Logs</a>
+                <a href="{{ url_for('auth.track_progress') }}" class="btn btn-muted"><i class="fas fa-chart-line"></i> Track Progress</a>
+                <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-muted"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                <a href="{{ url_for('auth.generate_cv') }}" class="btn btn-muted"><i class="fas fa-file-alt"></i> Generate CV</a>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="card">
+            <div class="card-title"><i class="fas fa-chart-bar"></i> Learning Analytics</div>
+            {% if hours_by_skill or weekly_data or skill_distribution %}
+            <div class="chart-row">
+                <div>
+                    <div class="chart-sub">Hours by Skill</div>
+                    <div class="chart-container"><canvas id="barChart"></canvas></div>
+                </div>
+                <div>
+                    <div class="chart-sub">Weekly Trend (14 days)</div>
+                    <div class="chart-container"><canvas id="lineChart"></canvas></div>
+                </div>
+                <div>
+                    <div class="chart-sub">Progress Distribution</div>
+                    <div class="pie-chart-container"><canvas id="pieChart"></canvas></div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-analytics">
+                <i class="fas fa-chart-line empty-state-icon"></i>
+                <div>No learning data yet</div>
+                <p class="text-muted">Start logging your practice hours to see analytics</p>
+                <a href="{{ url_for('auth.add_log') }}" class="btn btn-accent empty-state-button">Log Your First Session</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Skills Grid -->
+        <div class="card">
+            <div class="skills-header">
+                <div class="card-title card-title-no-margin"><i class="fas fa-layer-group"></i> Your Skills</div>
+                <a href="{{ url_for('auth.add_skill') }}" class="btn btn-accent btn-sm"><i class="fas fa-plus"></i> Add</a>
+            </div>
+            <div class="skills-grid" id="skillsGrid">
+                {% if skills %} {% for skill in skills %}
+                <div class="skill-card">
+                    <div class="skill-card-header">
+                        <div class="skill-name">{{ skill.skill_name }}</div>
+                        <span class="badge badge-{% if skill.current_progress >= 90 %}expert{% elif skill.current_progress >= 70 %}advanced{% elif skill.current_progress >= 40 %}intermediate{% else %}beginner{% endif %}">{% if skill.current_progress >= 90 %}Expert{% elif skill.current_progress >= 70 %}Advanced{% elif skill.current_progress >= 40 %}Intermediate{% else %}Beginner{% endif %}</span>
+                    </div>
+                    <div class="skill-desc">{{ skill.description }}</div>
+                    <div class="skill-meta">
+                        <span>{% if skill.target_date %}<i class="fas fa-calendar-alt" style="opacity:.45"></i> {{ skill.target_date }}{% else %}<i class="fas fa-infinity" style="opacity:.45"></i> No deadline{% endif %}</span>
+                        <span style="font-weight:700;color:var(--ink)">{{ skill.current_progress }}%</span>
+                    </div>
+                    <div class="prog-wrap">
+                        <div class="prog-bar" style="width:{{ skill.current_progress }}%"></div>
+                    </div>
+                    <div class="skill-card-buttons">
+                        <a href="{{ url_for('auth.edit_skill', skill_id=skill.skill_id) }}" class="btn btn-muted btn-sm"><i class="fas fa-pen"></i> Edit</a>
+                        <a href="{{ url_for('auth.delete_skill', skill_id=skill.skill_id) }}" onclick="return confirm('Delete {{ skill.skill_name }}? This cannot be undone.')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</a>
+                    </div>
+                </div>
+                {% endfor %} {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox empty-state-icon"></i>
+                    <div>No skills added yet</div>
+                    <a href="{{ url_for('auth.add_skill') }}" class="btn btn-accent empty-state-button">Add Your First Skill</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Logs -->
+        <div class="card">
+            <div class="logs-header">
+                <div class="card-title card-title-no-margin"><i class="fas fa-history"></i> Recent Learning Logs</div>
+                <a href="{{ url_for('auth.view_logs') }}" class="btn btn-muted btn-sm">View All</a>
+            </div>
+            <div class="logs-table-wrapper">
+                <table class="st-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Skill</th>
+                            <th>Hours</th>
+                            <th>Notes</th>
+                            <th>Edit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsBody">
+                        {% if recent_logs %} {% for log in recent_logs %}
+                        <tr>
+                            <td class="log-date-cell">{{ log.log_date.strftime("%b %d") if log.log_date else "N/A" }}</td>
+                            <td><span class="skill-chip">{{ log.skill_name }}</span></td>
+                            <td class="log-hours-cell">{{ log.hours_spent }}h</td>
+                            <td class="log-notes-cell">{{ log.reflection_notes[:50] if log.reflection_notes else "-" }}</td>
+                            <td><a href="{{ url_for('auth.edit_log', log_id=log.log_id) }}" class="btn btn-muted btn-sm"><i class="fas fa-pen"></i></a></td>
+                        </tr>
+                        {% endfor %} {% else %}
+                        <tr>
+                            <td colspan="5" class="logs-empty-state">
+                                <i class="fas fa-clipboard empty-state-icon"></i>
+                                <div>No logs available</div>
+                                <a href="{{ url_for('auth.add_log') }}" class="btn btn-accent empty-state-button">Log Your First Hour</a>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <!-- /main -->
+
+    <script>
+        /* -- Chart defaults -- */
+        Chart.defaults.font.family = "\"DM Sans\", sans-serif";
+        Chart.defaults.color = "#7f8c8d";
+        const GRID_COLOR = "rgba(149, 165, 166, 0.2)";
+
+        /* ── Bar chart ── */
+        { %
+            if hours_by_skill %
+        }
+        new Chart(document.getElementById("barChart"), {
+            type: "bar",
+            data: {
+                labels: {
+                    {
+                        hours_by_skill | map(attribute = "skill_name") | list | tojson
+                    }
+                },
+                datasets: [{
+                    label: "Hours",
+                    data: {
+                        {
+                            hours_by_skill | map(attribute = "total_hours") | list | tojson
+                        }
+                    },
+                    backgroundColor: "#3498db",
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxRotation: 30
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: GRID_COLOR
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        }); { % endif %
+        }
+
+        /* ── Line chart ── */
+        { %
+            if weekly_data %
+        }
+        new Chart(document.getElementById('lineChart'), {
+            type: 'line',
+            data: {
+                labels: {
+                    {
+                        weekly_data | map(attribute = 'date') | list | tojson
+                    }
+                },
+                datasets: [{
+                    label: 'Daily Hours',
+                    data: {
+                        {
+                            weekly_data | map(attribute = 'daily_hours') | list | tojson
+                        }
+                    },
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.08)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#3498db',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 7
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: GRID_COLOR
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        }); { % endif %
+        }
+
+        /* ── Doughnut chart ── */
+        { %
+            if skill_distribution %
+        }
+        const PALETTE = ["#3498db", "#2ecc71", "#f39c12", "#9b59b6", "#e74c3c", "#1abc9c", "#34495e", "#e67e22"];
+        new Chart(document.getElementById("pieChart"), {
+            type: "doughnut",
+            data: {
+                labels: {
+                    {
+                        skill_distribution | map(attribute = 'skill_name') | list | tojson
+                    }
+                },
+                datasets: [{
+                    data: {
+                        {
+                            skill_distribution | map(attribute = 'current_progress') | list | tojson
+                        }
+                    },
+                    backgroundColor: PALETTE,
+                    borderWidth: 2,
+                    borderColor: "#fff",
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "64%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 10,
+                            padding: 7,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    }
+                }
+            }
+        }); { % endif %
+        }
+    </script>
+</body>
+
+</html>

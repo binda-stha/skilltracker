@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile — SkillTracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- ── Navbar ── -->
+    <nav>
+        <a href="{{ url_for('auth.user_dashboard') }}" class="brand">
+            <i class="fas fa-bolt"></i> Skill<span>Tracker</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('auth.user_dashboard') }}"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ url_for('auth.add_skill') }}"><i class="fas fa-plus"></i> Add Skill</a></li>
+            <li><a href="{{ url_for('auth.add_log') }}"><i class="fas fa-clock"></i> Log Hours</a></li>
+            <li><a href="{{ url_for('auth.view_logs') }}"><i class="fas fa-list"></i> Logs</a></li>
+            <li><a href="{{ url_for('auth.logout') }}" class="danger"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        </ul>
+    </nav>
+
+    <!-- ── Page ── -->
+    <div class="main">
+
+        <a href="{{ url_for('auth.user_dashboard') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+
+        <!-- ── Profile Form ── -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </div>
+                <span style="font-size:0.8rem;color:var(--muted)">{{ session.email }}</span>
+            </div>
+
+            <div class="card-body">
+
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+                <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+                    <span>{{ message }}</span>
+                    <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+                </div>
+                {% endfor %} {% endif %} {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.edit_profile') }}">
+
+                    <!-- Personal Info -->
+                    <div class="section-label">Personal Information</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="full_name">Full Name <span class="required">*</span></label>
+                            <div class="input-icon-wrap">
+                                <i class="fas fa-user"></i>
+                                <input type="text" class="form-control" id="full_name" name="full_name" value="{{ profile.full_name if profile else '' }}" placeholder="Jane Doe" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <div class="input-icon-wrap">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" class="form-control" id="phone" name="phone" value="{{ profile.phone if profile else '' }}" placeholder="+1 (555) 000-0000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <div class="input-icon-wrap">
+                                <i class="fas fa-envelope"></i>
+                                <input type="email" class="form-control" value="{{ session.email }}" disabled>
+                            </div>
+                            <span class="field-hint">Email cannot be changed.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <div class="input-icon-wrap">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" class="form-control" id="address" name="address" value="{{ profile.address if profile else '' }}" placeholder="City, Country">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Online Presence -->
+                    <div class="section-label">Online Presence</div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn</label>
+                            <div class="input-icon-wrap">
+                                <i class="fab fa-linkedin"></i>
+                                <input type="url" class="form-control" id="linkedin" name="linkedin" value="{{ profile.linkedin if profile else '' }}" placeholder="https://linkedin.com/in/yourprofile">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="github">GitHub</label>
+                            <div class="input-icon-wrap">
+                                <i class="fab fa-github"></i>
+                                <input type="url" class="form-control" id="github" name="github" value="{{ profile.github if profile else '' }}" placeholder="https://github.com/yourusername">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Summary -->
+                    <div class="section-label">Professional Summary</div>
+
+                    <div class="form-group">
+                        <label for="summary">Summary</label>
+                        <textarea class="form-control" id="summary" name="summary" rows="4" placeholder="Write a brief professional summary about yourself — your experience, strengths, and goals...">{{ profile.professional_summary if profile else '' }}</textarea>
+                        <span class="field-hint">This will appear on your generated CV.</span>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-footer">
+                        <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-accent">
+            <i class="fas fa-save"></i> Save Profile
+          </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- ── Quick Links ── -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-grip-horizontal"></i> Profile Management
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="quick-grid">
+
+                    <a href="{{ url_for('auth.add_education') }}" class="quick-link">
+                        <div class="ql-icon ql-blue"><i class="fas fa-graduation-cap"></i></div>
+                        Add Education
+                    </a>
+
+                    <a href="{{ url_for('auth.add_experience') }}" class="quick-link">
+                        <div class="ql-icon ql-green"><i class="fas fa-briefcase"></i></div>
+                        Add Experience
+                    </a>
+
+                    <a href="{{ url_for('auth.add_project') }}" class="quick-link">
+                        <div class="ql-icon ql-teal"><i class="fas fa-project-diagram"></i></div>
+                        Add Project
+                    </a>
+
+                    <a href="{{ url_for('auth.add_certification') }}" class="quick-link">
+                        <div class="ql-icon ql-amber"><i class="fas fa-certificate"></i></div>
+                        Add Certification
+                    </a>
+
+                    <a href="{{ url_for('auth.generate_cv') }}" class="quick-link">
+                        <div class="ql-icon" style="background:#f3e8ff;color:#7c3aed"><i class="fas fa-file-alt"></i></div>
+                        Generate CV
+                    </a>
+
+                    <a href="{{ url_for('auth.user_dashboard') }}" class="quick-link">
+                        <div class="ql-icon" style="background:#fce7f3;color:#9d174d"><i class="fas fa-chart-line"></i></div>
+                        Dashboard
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- /main -->
+
+    <script>
+        // Auto-dismiss alerts after 5s
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(a => a.remove());
+        }, 5000);
+    </script>
+
+</body>
+
+</html>

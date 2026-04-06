@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Logs - SkillTracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar-custom">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 40px;">
+            <a href="{{ url_for('auth.user_dashboard') }}" style="color: white; font-family: var(--font-head); font-weight: 700; font-size: 24px; text-decoration: none;">
+                <i class="fas fa-chart-line" style="margin-right: 10px;"></i>SkillTracker
+            </a>
+            <div style="display: flex; gap: 20px;">
+                <a href="{{ url_for('auth.user_dashboard') }}" style="color: white; text-decoration: none;">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" style="color: white; text-decoration: none;">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+        <div style="margin-bottom: 30px;">
+            <h2 style="color: var(--primary); font-family: var(--font-head); font-weight: 600; margin-bottom: 20px;">Skill Logs</h2>
+
+            <div style="margin-bottom: 20px;">
+                <a href="{{ url_for('auth.add_log') }}" class="btn" style="background: var(--success); color: white; margin-right: 10px;">Add Log</a>
+                <a href="{{ url_for('auth.export_logs_csv') }}" class="btn" style="background: var(--accent); color: white; margin-right: 10px;">Export CSV</a>
+                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline-secondary">Dashboard</a>
+            </div>
+
+            <div class="alert alert-info" style="margin-bottom: 20px;">
+                Total Hours Logged: {{ total_hours }}
+            </div>
+        </div>
+
+        {% if logs %}
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Skill</th>
+                            <th>Date</th>
+                            <th>Hours</th>
+                            <th>Reflection</th>
+                            <th>Recorded At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ log.skill_name or 'Unknown' }}</td>
+                            <td>{{ log.log_date }}</td>
+                            <td>{{ log.hours_spent }}</td>
+                            <td>{{ log.reflection_notes or '-' }}</td>
+                            <td>{{ log.created_at }}</td>
+                            <td>
+                                <a href="{{ url_for('auth.edit_log', log_id=log.log_id) }}" class="btn btn-sm" style="margin-right:4px;">Edit</a>
+                                <a href="{{ url_for('auth.delete_log', log_id=log.log_id) }}" class="btn btn-sm" style="background: #e74c3c; color: #fff;" onclick="return confirm('Delete this log entry?');">Delete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No logs recorded yet. Create one to track your learning progress.</div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Learning Log - SkillTracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Enhanced Edit Log Styles */
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .navbar-custom nav {
+            background: transparent;
+        }
+        
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .nav-logout {
+            background: rgba(231, 76, 60, 0.8);
+            color: white;
+        }
+        
+        .nav-logout:hover {
+            background: #e74c3c;
+        }
+        
+        .main-container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            color: #2c3e50;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link:hover {
+            background: rgba(52, 73, 94, 0.1);
+            color: #1a252f;
+        }
+        
+        .edit-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            animation: slideUp 0.4s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .edit-header {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .edit-body {
+            padding: 32px;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%);
+            border-left: 4px solid #3498db;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 28px;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+        
+        .info-box p {
+            margin: 0;
+            line-height: 1.8;
+        }
+        
+        .info-box strong {
+            color: #1a252f;
+            font-weight: 600;
+        }
+        
+        .form-section {
+            margin-bottom: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 22px;
+        }
+        
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .required {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+        
+        .form-label i {
+            font-size: 1rem;
+            color: #3498db;
+        }
+        
+        .form-control,
+        .form-select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: var(--font-body);
+            transition: all 0.3s ease;
+            background: #fafbfc;
+            color: #2c3e50;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .form-control::placeholder {
+            color: #95a5a6;
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 140px;
+            font-size: 0.9rem;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            min-height: 44px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #2c3e50;
+            border: 2px solid #bdc3c7;
+        }
+        
+        .btn-secondary:hover {
+            background: #bdc3c7;
+            color: white;
+            border-color: #95a5a6;
+        }
+        
+        .alert {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert i {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .alert-success {
+            background: #d5f4e6;
+            color: #27ae60;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .alert-error {
+            background: #fadbd8;
+            color: #e74c3c;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .alert-warning {
+            background: #fdeaa7;
+            color: #f39c12;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .footer {
+            background: rgba(44, 62, 80, 0.95);
+            padding: 20px;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 50px;
+            font-size: 0.9rem;
+        }
+        
+        .footer p {
+            margin: 0;
+        }
+        /* Loading state */
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        /* Responsive Design */
+        
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 20px auto;
+                padding: 12px;
+            }
+            .edit-body {
+                padding: 20px;
+            }
+            .button-group {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+            .navbar-custom nav div:last-child {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar-custom">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;">
+            <a href="{{ url_for('auth.user_dashboard') }}" class="navbar-brand">
+                <i class="fas fa-graduation-cap"></i> SkillTracker
+            </a>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <a href="{{ url_for('auth.user_dashboard') }}" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="{{ url_for('auth.view_logs') }}" class="nav-link">
+                    <i class="fas fa-book"></i> Logs
+                </a>
+                <a href="{{ url_for('auth.edit_profile') }}" class="nav-link">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="nav-link nav-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Back Link -->
+        <a href="{{ url_for('auth.view_logs') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Logs
+        </a>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {% if category == 'success' %}
+            <i class="fas fa-check-circle"></i> {% elif category == 'error' %}
+            <i class="fas fa-exclamation-circle"></i> {% else %}
+            <i class="fas fa-info-circle"></i> {% endif %}
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
+
+        <!-- Edit Log Form Card -->
+        <div class="edit-card">
+            <!-- Header -->
+            <div class="edit-header">
+                <i class="fas fa-edit"></i>
+                <span>Edit Learning Log</span>
+            </div>
+
+            <!-- Body -->
+            <div class="edit-body">
+                <!-- Log Info Box -->
+                <div class="info-box">
+                    <p>
+                        <strong>📋 Log ID:</strong> #{{ log.log_id }}<br>
+                        <strong>📅 Original Date:</strong> {{ log.log_date }}
+                    </p>
+                </div>
+
+                <!-- Edit Form -->
+                <form method="POST" action="{{ url_for('auth.edit_log', log_id=log.log_id) }}" novalidate>
+                    <!-- Form Section: Basic Info -->
+                    <div class="form-section">
+                        <!-- Skill Selection -->
+                        <div class="form-group">
+                            <label for="skill_id" class="form-label">
+                                <i class="fas fa-star"></i> Skill <span class="required">*</span>
+                            </label>
+                            <select name="skill_id" id="skill_id" class="form-select" required>
+                                <option value="">-- Select a Skill --</option>
+                                {% for skill in skills %}
+                                    <option value="{{ skill.skill_id }}" 
+                                        {% if skill.skill_id == log.skill_id %}selected{% endif %}>
+                                        {{ skill.skill_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Hours Spent -->
+                        <div class="form-group">
+                            <label for="hours_spent" class="form-label">
+                                <i class="fas fa-clock"></i> Hours Spent <span class="required">*</span>
+                            </label>
+                            <input type="number" name="hours_spent" id="hours_spent" class="form-control" step="0.5" min="0" value="{{ log.hours_spent }}" required placeholder="Enter hours (e.g., 2.5)">
+                        </div>
+
+                        <!-- Log Date -->
+                        <div class="form-group">
+                            <label for="log_date" class="form-label">
+                                <i class="fas fa-calendar"></i> Date <span class="required">*</span>
+                            </label>
+                            <input type="date" name="log_date" id="log_date" class="form-control" value="{{ log.log_date }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Form Section: Reflection -->
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label for="reflection_notes" class="form-label">
+                                <i class="fas fa-lightbulb"></i> Reflection Notes
+                            </label>
+                            <textarea name="reflection_notes" id="reflection_notes" class="form-control" placeholder="What did you learn? What challenges did you face? What will you do next time?">{{ log.reflection_notes or '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="button-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check"></i> Update Log
+                        </button>
+                        <a href="{{ url_for('auth.view_logs') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 SkillTracker - Learning Management System | BCA 6th Semester Project</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Form validation feedback
+        document.querySelectorAll('.form-control, .form-select').forEach(field => {
+            field.addEventListener('blur', function() {
+                if (this.hasAttribute('required') && !this.value) {
+                    this.style.borderColor = '#e74c3c';
+                } else {
+                    this.style.borderColor = '#ecf0f1';
+                }
+            });
+        });
+
+        // Prevent negative hours
+        document.getElementById('hours_spent').addEventListener('input', function() {
+            if (this.value < 0) {
+                this.value = 0;
+            }
+        });
+
+        // Prevent future dates
+        document.getElementById('log_date').addEventListener('change', function() {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (selectedDate > today) {
+                alert('❌ Log date cannot be in the future');
+                this.value = '';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SkillTracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar-custom">
+        <div class="container-main">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0;">
+                <a style="color: white; font-family: var(--font-head); font-weight: 700; font-size: 24px; text-decoration: none;">
+                    <i class="fas fa-cog"></i> SkillTracker Admin Panel
+                </a>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <span style="color: white;">Welcome, {{ session.email }}</span>
+                    <a href="{{ url_for('auth.logout') }}" style="background: var(--danger); color: white; padding: 8px 16px; border-radius: var(--radius); text-decoration: none; font-weight: 500;">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-main">
+        <div class="mb-4">
+            <div>
+                <h1 style="color: var(--primary); font-family: var(--font-head); font-weight: 700; margin-bottom: 10px;">System Dashboard</h1>
+                <p style="color: var(--text-light);">Manage users, skills, and system statistics</p>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
+            {{ message }}
+            <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'">×</button>
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid" style="margin-bottom: 20px;">
+            <div class="card-stats">
+                <i class="fas fa-users fa-2x"></i>
+                <div class="stat-value">{{ user_count }}</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="card-stats">
+                <div class="card-stats">
+                    <i class="fas fa-tasks fa-2x"></i>
+                    <div class="stat-value">{{ skill_count }}</div>
+                    <div class="stat-label">Total Skills</div>
+                </div>
+                <div class="stat-label">Total Skills</div>
+            </div>
+            <div class="card-stats">
+                <i class="fas fa-chart-line fa-2x"></i>
+                <div class="stat-value">{{ avg_progress }}%</div>
+                <div class="stat-label">Avg Progress</div>
+            </div>
+            <div class="card-stats">
+                <i class="fas fa-server fa-2x"></i>
+                <div class="stat-value">Active</div>
+                <div class="stat-label">System Status</div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-container mb-4">
+            <h3 class="mb-3">👥 Registered Users</h3>
+            {% if users %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td><strong>#{{ user.id }}</strong></td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.role_ID == 1 %}
+                                <span class="badge-role badge-admin">Admin</span> {% else %}
+                                <span class="badge-role badge-user">User</span> {% endif %}
+                            </td>
+                            <td>
+                                {% if user.created_at %} {{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }} {% else %} N/A {% endif %}
+                            </td>
+                            <td><span class="badge-role" style="background: var(--success); color: white;">Active</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">No users found.</div>
+            {% endif %}
+        </div>
+
+        <!-- System Information -->
+        <div style="display: flex; gap: 20px;">
+            <div style="flex: 1;">
+                <div class="table-container">
+                    <h4>📊 System Overview</h4>
+                    <table class="table mb-0">
+                        <tr>
+                            <td><strong>Total Users</strong></td>
+                            <td>{{ user_count }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Total Skills</strong></td>
+                            <td>{{ skill_count }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Average Progress</strong></td>
+                            <td>{{ avg_progress }}%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Database Status</strong></td>
+                            <td><span class="badge-role" style="background: var(--success); color: white;">Connected</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div style="flex: 1;">
+            <div class="table-container">
+                <h4>🎯 Quick Actions</h4>
+                <div style="display: grid; gap: 10px;">
+                    <a href="{{ url_for('auth.user_dashboard') }}" class="btn" style="background: var(--accent); color: white;">View User Dashboard</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary">Switch User</a>
+                    <button class="btn" style="background: var(--text-light); color: var(--text); cursor: not-allowed;" disabled>System Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="mt-4 text-center">
+        <a href="{{ url_for('auth.logout') }}" class="btn" style="background: var(--danger); color: white; padding: 12px 24px; font-size: 18px;">Logout</a>
+    </div>
+    </div>
+</body>
+
+</html>
