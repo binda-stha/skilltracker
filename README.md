@@ -1,4 +1,4 @@
-# 🎯 SkillTracker - BCA Final Year Project
+# 🎯 SkillTracker - BCA 6th Sem Project
 
 **Status:** ✅ Complete & Production-Ready
 **Version:** 1.0.0
