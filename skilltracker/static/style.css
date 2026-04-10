@@ -1268,6 +1268,175 @@ label {
     }
 }
 
+.track-nav {
+    background: #ffffff;
+    border-bottom: 1px solid #e6e8eb;
+}
+
+.track-nav .navbar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.track-nav .brand-link {
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.track-nav .nav-actions .btn {
+    min-width: 120px;
+    border-color: transparent;
+}
+
+.track-nav .nav-actions .btn-ghost,
+.track-nav .nav-actions .btn-outline-secondary {
+    background: transparent;
+    color: var(--text);
+}
+
+.track-nav .nav-actions .btn-ghost.active,
+.track-nav .nav-actions .btn-ghost:hover {
+    background: var(--light);
+    border-color: var(--border);
+}
+
+.track-progress-page {
+    background: #f7f8fb;
+    padding: 30px;
+    min-height: calc(100vh - 90px);
+}
+
+.track-progress-page .page-title {
+    color: var(--text);
+    margin: 0;
+    margin-bottom: 8px;
+    font-size: 2rem;
+}
+
+.track-progress-page .page-subtitle {
+    color: var(--text-muted);
+    margin-top: 0;
+    margin-bottom: 24px;
+}
+
+.track-progress-page .section-heading {
+    color: var(--text);
+    margin: 0 0 18px 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.track-progress-page .stats-grid {
+    gap: 18px;
+}
+
+.track-progress-page .stats-card {
+    background: #ffffff;
+    border: 1px solid #e7eaee;
+    box-shadow: none;
+}
+
+.track-progress-page .progress-card {
+    background: #ffffff;
+    border: 1px solid #e7eaee;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: none;
+}
+
+.track-progress-page .progress-card-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.track-progress-page .skill-info h5 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text);
+}
+
+.track-progress-page .skill-description {
+    color: var(--text-muted);
+    margin: 8px 0 0;
+    max-width: 320px;
+}
+
+.track-progress-page .progress-wrapper {
+    flex: 1;
+    min-width: 220px;
+}
+
+.track-progress-page .progress-bar {
+    height: 28px;
+    background: #edf2f7;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+}
+
+.track-progress-page .progress-fill {
+    background: var(--accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    font-weight: 600;
+}
+
+.track-progress-page .progress-control {
+    min-width: 200px;
+}
+
+.track-progress-page .progress-slider {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.track-progress-page .progress-value {
+    margin: 0 0 10px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.track-progress-page .badge-completed {
+    background: #f3f6fb;
+    color: var(--text);
+    border: 1px solid #e7ebf0;
+}
+
+.track-progress-page .btn-primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.track-progress-page .btn-primary:hover {
+    background: #0f65b0;
+    border-color: #0f65b0;
+}
+
+.track-progress-page .track-footer {
+    margin-top: 24px;
+}
+
+.track-progress-page .analytics-card {
+    background: #ffffff;
+    border: 1px solid #e7eaee;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: none;
+    margin-bottom: 20px;
+}
+
 
 /* Form Styles */
 

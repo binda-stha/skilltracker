@@ -4,7 +4,7 @@ Handles: Registration, Login, Logout, Skill CRUD, Progress Tracking, CV Generati
 Security: Password hashing, session validation, input sanitization
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, make_response, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, make_response, current_app, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql
 from pymysql.err import InternalError
@@ -1668,21 +1668,18 @@ def get_progress_trends(user_id, days=30):
             skill_id = skill['skill_id']
             
             cursor.execute("""
-                SELECT DATE(log_date) as date, MAX(
-                    (SELECT s.current_progress FROM skills s 
-                     WHERE s.skill_id = %s LIMIT 1)
-                ) as progress
+                SELECT DATE(log_date) as date, SUM(hours_spent) as hours
                 FROM skill_logs
                 WHERE user_id = %s AND skill_id = %s 
                   AND log_date >= DATE_SUB(CURDATE(), INTERVAL %s DAY)
                 GROUP BY DATE(log_date)
                 ORDER BY date
-            """, (skill_id, user_id, skill_id, days))
+            """, (user_id, skill_id, days))
             
             logs = cursor.fetchall()
             if logs:
                 trends[skill_id] = [
-                    {'date': str(log['date']), 'hours': log['hours_spent'] if 'hours_spent' in log else 0}
+                    {'date': str(log['date']), 'hours': float(log['hours'])}
                     for log in logs
                 ]
         
@@ -1840,15 +1837,7 @@ def track_progress():
         intermediate_skills = sum(1 for s in skills if 30 <= s['current_progress'] < 70)
         advanced_skills = sum(1 for s in skills if s['current_progress'] >= 70)
 
-        # Get completion estimates for each skill
-        skill_estimates = {}
-        for skill in skills:
-            est = estimate_completion_time(user_id, skill['skill_id'])
-            if est:
-                skill_estimates[skill['skill_id']] = est
-
-        # Get progress trends
-        progress_trends = get_progress_trends(user_id)
+        trends = get_progress_trends(user_id)
 
         return render_template(
             'track_progress.html',
@@ -1857,8 +1846,7 @@ def track_progress():
             intermediate_skills=intermediate_skills,
             advanced_skills=advanced_skills,
             total_skills=len(skills),
-            skill_estimates=skill_estimates,
-            progress_trends=progress_trends
+            trends=trends
         )
 
     except Exception as e:
@@ -1886,6 +1874,8 @@ def update_progress(skill_id, new_progress):
 
                        
     if not is_valid_progress(new_progress):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'message': 'Invalid progress value'})
         flash("❌ Invalid progress value", "error")
         return redirect(url_for('auth.track_progress'))
 
@@ -1893,6 +1883,8 @@ def update_progress(skill_id, new_progress):
     conn = get_db_connection()
     
     if not conn:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'message': 'Database error'})
         flash("❌ Database error", "error")
         return redirect(url_for('auth.user_dashboard'))
 
@@ -1904,6 +1896,8 @@ def update_progress(skill_id, new_progress):
         skill = cursor.fetchone()
 
         if not skill or skill['user_id'] != user_id:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': False, 'message': 'Unauthorized access'})
             flash("❌ Unauthorized access", "error")
             cursor.close()
             conn.close()
@@ -1923,10 +1917,14 @@ def update_progress(skill_id, new_progress):
         flash("✅ Progress updated!", "success")
 
     except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'success': False, 'message': str(e)})
         flash(f"❌ Error: {str(e)}", "error")
         cursor.close()
         conn.close()
 
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'success': True})
     return redirect(url_for('auth.track_progress'))
 
                                

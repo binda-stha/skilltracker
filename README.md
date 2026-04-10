@@ -84,9 +84,6 @@ skilltracker/
 │   └── (other pages)
 ├── routes/
 │   └── auth.py                     # All business logic routes
-├── COMPLETE_TECHNICAL_DOCUMENTATION.md    # Full technical docs
-├── TESTING_VALIDATION.md                  # Testing documentation
-├── INSTALLATION_DEPLOYMENT.md             # Setup guide
 ├── README.md                       # This file
 └── __pycache__/                    # Python cache
 
@@ -333,9 +330,6 @@ python app.py
 
 | Document | Purpose |
 |----------|---------|
-| [INSTALLATION_DEPLOYMENT.md](INSTALLATION_DEPLOYMENT.md) | Complete setup guide for development & production |
-| [COMPLETE_TECHNICAL_DOCUMENTATION.md](COMPLETE_TECHNICAL_DOCUMENTATION.md) | Full technical specs, algorithms, diagrams |
-| [TESTING_VALIDATION.md](TESTING_VALIDATION.md) | Test cases, validation checklist, results |
 | [database_schema.sql](database_schema.sql) | Database structure with relationships |
 
 ---
@@ -380,8 +374,6 @@ python app.py
 
 **Test Status:** ✅ VERIFIED PASSING
 
-See [TESTING_VALIDATION.md](TESTING_VALIDATION.md) for detailed results.
-
 ---
 
 ## 📊 Database Schema
@@ -409,8 +401,6 @@ See [TESTING_VALIDATION.md](TESTING_VALIDATION.md) for detailed results.
 4. **Update Progress** with change tracking
 5. **Generate CV** with proficiency assignment
 6. **Delete Skill** with cascading operations
-
-See [COMPLETE_TECHNICAL_DOCUMENTATION.md](COMPLETE_TECHNICAL_DOCUMENTATION.md) for pseudocode.
 
 ---
 
@@ -452,13 +442,11 @@ python app.py
 ### Production (Linux - Gunicorn + Nginx)
 ```bash
 gunicorn --workers 4 --bind 127.0.0.1:5000 app:app
-# See INSTALLATION_DEPLOYMENT.md for full setup
 ```
 
 ### Production (Windows - IIS)
 - Configure FastCGI handler
 - Set up web.config
-- See INSTALLATION_DEPLOYMENT.md for details
 
 ---
 
@@ -494,8 +482,6 @@ gunicorn --workers 4 --bind 127.0.0.1:5000 app:app
 | Route | Method | Purpose |
 |-------|--------|---------|
 | `/admin/dashboard` | GET | System statistics |
-
-See [COMPLETE_TECHNICAL_DOCUMENTATION.md](COMPLETE_TECHNICAL_DOCUMENTATION.md) for full API documentation.
 
 ---
 
@@ -587,16 +573,11 @@ ls templates/
 # Restart application
 ```
 
-For more troubleshooting, see [INSTALLATION_DEPLOYMENT.md](INSTALLATION_DEPLOYMENT.md).
-
 ---
 
 ## 📞 Support & Resources
 
 ### Documentation
-- [Installation & Deployment](INSTALLATION_DEPLOYMENT.md)
-- [Technical Documentation](COMPLETE_TECHNICAL_DOCUMENTATION.md)
-- [Testing & Validation](TESTING_VALIDATION.md)
 - [Database Schema](database_schema.sql)
 
 ### Key Files

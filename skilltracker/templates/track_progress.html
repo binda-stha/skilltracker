@@ -8,26 +8,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar-custom">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
-            <a href="{{ url_for('auth.user_dashboard') }}" style="color:white;font-weight:700;">📚 SkillTracker</a>
-            <div style="display:flex; gap:12px;">
-                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-ghost">Dashboard</a>
-                <a href="{{ url_for('auth.track_progress') }}" class="btn btn-ghost">Track Progress</a>
-                <a href="{{ url_for('auth.generate_cv') }}" class="btn btn-ghost">Generate CV</a>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary">Logout</a>
+    <div class="container-main track-progress-page">
+
+        <div>
+            <div class="page-header">
+                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline-secondary back-btn">← Dashboard</a>
+                <h1 class="page-title">Progress Tracking</h1>
             </div>
-        </div>
-    </nav>
-
-    <div class="container-main">
-
-        <div class="container-main">
-            <h1 class="text-white mb-4">📊 Progress Tracking Dashboard</h1>
+            <p class="page-subtitle">Monitor and update your skill progress.</p>
 
             {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
             <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" role="alert">
@@ -37,79 +29,50 @@
             {% endfor %} {% endif %} {% endwith %}
 
             <!-- Statistics Cards -->
-            <div class="stats-grid" style="margin-bottom: 20px;">
+            <div class="stats-grid">
                 <div class="stats-card text-center">
                     <div class="stat-number">{{ total_skills }}</div>
                     <div class="stat-label">Total Skills</div>
                 </div>
                 <div class="stats-card text-center">
                     <div class="stat-number">{{ beginner_skills }}</div>
-                    <div class="stat-label">🌱 Beginner (0-30%)</div>
+                    <div class="stat-label">Beginner (0-30%)</div>
                 </div>
                 <div class="stats-card text-center">
                     <div class="stat-number">{{ intermediate_skills }}</div>
-                    <div class="stat-label">📈 Intermediate (30-70%)</div>
+                    <div class="stat-label">Intermediate (30-70%)</div>
                 </div>
                 <div class="stats-card text-center">
                     <div class="stat-number">{{ advanced_skills }}</div>
-                    <div class="stat-label">🚀 Advanced (70%+)</div>
+                    <div class="stat-label">Advanced (70%+)</div>
                 </div>
             </div>
 
-            <!-- Skills Progress List with Completion Estimates -->
+            <!-- Skills Progress Summary -->
             {% if skills %}
             <div class="container-main">
-                <h3 class="text-white mb-3">Your Skills Progress & Completion Estimates</h3>
+                <h3 class="section-heading">Your Skills Progress</h3>
                 {% for skill in skills %}
                 <div class="progress-card">
                     <div class="progress-card-header">
-                        <div style="width: 300px;">
+                        <div class="skill-info">
                             <h5>{{ skill.skill_name }}</h5>
-                            <small class="text-muted">{{ skill.description or 'No description' }}</small>
+                            <p class="skill-description">{{ skill.description or 'No description' }}</p>
                         </div>
-                        <div style="flex: 1;">
-                            <div class="progress-bar-container">
+                        <div class="progress-wrapper">
+                            <div class="progress-bar">
                                 <div class="progress-fill" style="width: {{ skill.current_progress }}%;">
                                     {{ skill.current_progress }}%
                                 </div>
                             </div>
                         </div>
-                        <div style="width: 30%; text-align: right;">
-                            {% if skill.current_progress >= 100 %}
-                            <span class="badge-completed">✅ Completed</span> {% else %}
-                            <input type="range" id="progress{{ skill.skill_id }}" min="0" max="100" value="{{ skill.current_progress }}" style="width: 100%; margin-bottom: 8px;" oninput="updateValue({{ skill.skill_id }})">
-                            <p style="font-size: 13px; margin: 0;">Current: <strong id="progressValue{{ skill.skill_id }}">{{ skill.current_progress }}%</strong></p>
-                            <a href="{{ url_for('auth.update_progress', skill_id=skill.skill_id, new_progress=skill.current_progress) }}" class="btn" id="updateBtn{{ skill.skill_id }}" style="display:block; margin-top:6px;">Update</a> {% endif %}
-                        </div>
                     </div>
-
-                    <!-- Completion Estimate Section -->
-                    {% if skill.skill_id in skill_estimates %}
-                    <div class="completion-estimate-container">
-                        <div class="estimate-grid">
-                            <div class="estimate-item">
-                                <div class="estimate-label">⏱️ Days Remaining</div>
-                                <div class="estimate-value {% if skill_estimates[skill.skill_id].pace == 'fast' %}pace-fast{% elif skill_estimates[skill.skill_id].pace == 'slow' %}pace-slow{% else %}pace-normal{% endif %}">
-                                    {{ skill_estimates[skill.skill_id].days_remaining }}
-                                </div>
-                            </div>
-                            <div class="estimate-item">
-                                <div class="estimate-label">📅 Est. Completion</div>
-                                <div class="estimate-value">{{ skill_estimates[skill.skill_id].completion_date }}</div>
-                            </div>
-                            <div class="estimate-item">
-                                <div class="estimate-label">⚡ Learning Pace</div>
-                                <div class="estimate-value pace-badge {% if skill_estimates[skill.skill_id].pace == 'fast' %}badge-fast{% elif skill_estimates[skill.skill_id].pace == 'slow' %}badge-slow{% else %}badge-normal{% endif %}">
-                                    {{ skill_estimates[skill.skill_id].avg_hours_per_day }}/day
-                                </div>
-                            </div>
-                            <div class="estimate-item">
-                                <div class="estimate-label">📊 Hours Completed</div>
-                                <div class="estimate-value">{{ skill_estimates[skill.skill_id].completed_hours }}/{{ skill.target_hours }}</div>
-                            </div>
-                        </div>
+                    <div class="progress-control">
+                        {% if skill.current_progress >= 100 %}
+                        <span class="badge-completed">Completed</span> {% else %}
+                        <input type="range" id="progress{{ skill.skill_id }}" class="progress-slider" min="0" max="100" value="{{ skill.current_progress }}" onchange="updateProgress({{ skill.skill_id }})">
+                        <p class="progress-value">Current: <strong id="progressValue{{ skill.skill_id }}">{{ skill.current_progress }}%</strong></p> {% endif %}
                     </div>
-                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
@@ -120,9 +83,13 @@
                 <a href="{{ url_for('auth.user_dashboard') }}" class="btn">Add Skill</a>
             </div>
             {% endif %}
+        </div>
 
-            <div class="mt-4 mb-4">
-                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-light btn-lg">← Back to Dashboard</a>
+        <!-- Learning Analytics -->
+        <div class="container-main">
+            <h3 class="section-heading">Learning Analytics</h3>
+            <div class="analytics-card">
+                <canvas id="progressChart" width="400" height="200"></canvas>
             </div>
         </div>
 
@@ -132,11 +99,108 @@
                 document.getElementById('progressValue' + skillId).textContent = value + '%';
                 document.getElementById('updateBtn' + skillId).href = "/update-progress/" + skillId + "/" + value;
             }
+
+            function updateProgress(skillId) {
+                const value = document.getElementById('progress' + skillId).value;
+                document.getElementById('progressValue' + skillId).textContent = value + '%';
+
+                fetch(`/update-progress/${skillId}/${value}`, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Update the progress bar
+                            const progressCard = document.getElementById('progress' + skillId).closest('.progress-card');
+                            const progressFill = progressCard.querySelector('.progress-fill');
+                            progressFill.style.width = value + '%';
+                            progressFill.textContent = value + '%';
+
+                            // Show success message
+                            showMessage('Progress updated successfully!', 'success');
+                        } else {
+                            showMessage(data.message || 'Failed to update progress.', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showMessage('Error updating progress.', 'error');
+                    });
+            }
+
+            function showMessage(message, type) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+                alertDiv.innerHTML = `${message} <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>`;
+                const container = document.querySelector('.container-main');
+                container.insertBefore(alertDiv, container.firstChild);
+                setTimeout(() => alertDiv.remove(), 3000);
+            }
+
+            // Learning Analytics Chart
+            const trends = {
+                {
+                    trends | tojson
+                }
+            };
+            const dateHours = {};
+
+            // Aggregate hours by date
+            Object.values(trends).forEach(skillTrends => {
+                skillTrends.forEach(entry => {
+                    if (!dateHours[entry.date]) {
+                        dateHours[entry.date] = 0;
+                    }
+                    dateHours[entry.date] += entry.hours;
+                });
+            });
+
+            const labels = Object.keys(dateHours).sort();
+            const data = labels.map(date => dateHours[date]);
+
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Hours Spent',
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Daily Learning Hours (Last 30 Days)'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Hours'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    }
+                }
+            });
         </script>
-</body>
-
-</html>
-
+    </div>
 </body>
 
 </html>

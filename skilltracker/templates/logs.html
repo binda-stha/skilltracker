@@ -33,6 +33,12 @@
                 <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline-secondary">Dashboard</a>
             </div>
 
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" role="alert" style="margin-bottom: 20px;">
+                {{ message }}
+            </div>
+            {% endfor %} {% endif %} {% endwith %}
+
             <div class="alert alert-info" style="margin-bottom: 20px;">
                 Total Hours Logged: {{ total_hours }}
             </div>

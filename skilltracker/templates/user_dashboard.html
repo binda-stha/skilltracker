@@ -31,6 +31,12 @@
     <!-- ---------------- MAIN ---------------- -->
     <div class="main">
 
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}" style="margin: 0 0 20px 0;">
+            {{ message }}
+        </div>
+        {% endfor %} {% endif %} {% endwith %}
+
         <!-- Welcome -->
         <div class="card welcome-card">
             <div class="welcome-content">
@@ -39,11 +45,7 @@
                     <div class="welcome-name">{{ full_name }}</div>
                     <div class="welcome-email">{{ session.email }}</div>
                 </div>
-                <div class="welcome-buttons">
-                    <a href="{{ url_for('auth.add_skill') }}" class="btn btn-accent"><i class="fas fa-plus"></i> Add Skill</a>
-                    <a href="{{ url_for('auth.add_log') }}" class="btn btn-white"><i class="fas fa-clock"></i> Log Hours</a>
-                    <a href="{{ url_for('auth.generate_cv') }}" class="btn btn-ghost"><i class="fas fa-file-alt"></i> CV</a>
-                </div>
+
             </div>
         </div>
 
