@@ -5,56 +5,159 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Skill Log - SkillTracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .form-page {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .form-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg3);
+            color: var(--text);
+            font-size: 13px;
+            margin-bottom: 16px;
+            font-family: 'DM Sans', sans-serif;
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 106, 247, 0.1);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .form-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .form-btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .form-btn-primary:hover {
+            background: var(--accent2);
+        }
+        
+        .form-btn-secondary {
+            background: var(--bg3);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .form-btn-secondary:hover {
+            background: var(--bg4);
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            color: var(--accent);
+        }
+    </style>
 </head>
 
-<body>
-    <nav class="navbar-custom">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
-            <a href="{{ url_for('auth.user_dashboard') }}" class="brand" style="font-size: 20px;">📚 SkillTracker</a>
-            <div style="display: flex; gap: 15px;">
-                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-ghost">Dashboard</a>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary">Logout</a>
+<body style="background: var(--bg);">
+    <div class="form-page">
+        <div class="form-card">
+            <a href="{{ url_for('auth.user_dashboard') }}" class="back-btn">← Back to Dashboard</a>
+            <h2 class="form-title">Record Daily Skill Log</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            <div style="background: {% if category == 'error' %}rgba(255, 95, 109, 0.15){% else %}rgba(52, 199, 122, 0.15){% endif %}; border: 1px solid {% if category == 'error' %}var(--red){% else %}var(--green){% endif %}; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; color: {% if category == 'error' %}var(--red){% else %}var(--green){% endif %}; font-size: 13px;">
+                {{ message }}
             </div>
-        </div>
-    </nav>
+            {% endfor %} {% endif %} {% endwith %}
 
-    <div class="container-main">
-        <h2>Record Daily Skill Log</h2>
-
-        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
-        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" role="alert">
-            {{ message }}
-        </div>
-        {% endfor %} {% endif %} {% endwith %}
-
-        <form method="POST" action="{{ url_for('auth.add_log') }}">
-            <div class="mb-3">
-                <label for="skill_id" class="form-label">Skill</label>
-                <select id="skill_id" name="skill_id" class="form-select" required>
+            <form method="POST" action="{{ url_for('auth.add_log') }}">
+                <label class="form-label">Skill *</label>
+                <select class="form-select" name="skill_id" required>
                     <option value="">Select skill</option>
                     {% for skill in skills %}
                     <option value="{{ skill.skill_id }}">{{ skill.skill_name }}</option>
                     {% endfor %}
                 </select>
-            </div>
-            <div class="mb-3">
-                <label for="hours_spent" class="form-label">Hours Spent</label>
-                <input type="number" step="0.25" min="0.25" id="hours_spent" name="hours_spent" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="log_date" class="form-label">Log Date</label>
-                <input type="date" id="log_date" name="log_date" class="form-control" value="{{ current_date }}" required>
-            </div>
-            <div class="mb-3">
-                <label for="reflection_notes" class="form-label">Reflection Notes</label>
-                <textarea id="reflection_notes" name="reflection_notes" class="form-control" rows="4"></textarea>
-            </div>
-            <button class="btn" type="submit">Save Log</button>
-            <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
-        </form>
+
+                <label class="form-label">Hours Spent *</label>
+                <input type="number" class="form-input" name="hours_spent" step="0.25" min="0.25" required>
+
+                <label class="form-label">Log Date *</label>
+                <input type="date" class="form-input" name="log_date" value="{{ current_date }}" required>
+
+                <label class="form-label">Reflection Notes</label>
+                <textarea class="form-textarea" name="reflection_notes" placeholder="What did you learn? What challenges did you face?"></textarea>
+
+                <div class="form-buttons">
+                    <button type="submit" class="form-btn form-btn-primary">✓ Save Log</button>
+                    <a href="{{ url_for('auth.user_dashboard') }}" class="form-btn form-btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 

@@ -85,11 +85,12 @@
             {% endif %}
         </div>
 
-        <!-- Learning Analytics -->
         <div class="container-main">
-            <h3 class="section-heading">Learning Analytics</h3>
-            <div class="analytics-card">
-                <canvas id="progressChart" width="400" height="200"></canvas>
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-bar"></i> Skill Hours</div>
+                <div class="chart-container">
+                    <canvas id="hoursBySkillChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -140,65 +141,52 @@
                 setTimeout(() => alertDiv.remove(), 3000);
             }
 
-            // Learning Analytics Chart
-            const trends = {
-                {
-                    trends | tojson
-                }
-            };
-            const dateHours = {};
-
-            // Aggregate hours by date
-            Object.values(trends).forEach(skillTrends => {
-                skillTrends.forEach(entry => {
-                    if (!dateHours[entry.date]) {
-                        dateHours[entry.date] = 0;
-                    }
-                    dateHours[entry.date] += entry.hours;
-                });
-            });
-
-            const labels = Object.keys(dateHours).sort();
-            const data = labels.map(date => dateHours[date]);
-
-            const ctx = document.getElementById('progressChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Hours Spent',
-                        data: data,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Daily Learning Hours (Last 30 Days)'
-                        }
+            const hoursBySkillData = {{ hours_by_skill | tojson }};
+            if (hoursBySkillData && hoursBySkillData.length > 0) {
+                const chartCtx = document.getElementById('hoursBySkillChart').getContext('2d');
+                new Chart(chartCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: hoursBySkillData.map(item => item.skill_name),
+                        datasets: [{
+                            label: 'Hours',
+                            data: hoursBySkillData.map(item => item.hours),
+                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                            borderColor: 'rgba(52, 152, 219, 1)',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
                             title: {
                                 display: true,
-                                text: 'Hours'
+                                text: 'Hours by Skill (Last 14 Days)'
                             }
                         },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Date'
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Hours'
+                                }
                             }
                         }
                     }
+                });
+            } else {
+                const chartCard = document.getElementById('hoursBySkillChart').closest('.card');
+                if (chartCard) {
+                    chartCard.innerHTML = '<div class="empty-analytics"><p class="text-muted">No learning logs found yet.</p></div>';
                 }
-            });
+            }
         </script>
     </div>
 </body>

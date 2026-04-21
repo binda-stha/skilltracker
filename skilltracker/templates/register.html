@@ -17,11 +17,11 @@
         </div>
         <div class="right-section">
             <div class="logo-area">
-                <h2>skilltracker</h2>
+                <h2>SkillTracker</h2>
             </div>
 
-            <h1>Welcome To Skillo</h1>
-            <p>Register to manage your skills.</p>
+            <h1>Welcome to SkillTracker</h1>
+            <p>Register and start tracking your skills today.</p>
 
             {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
             <div class="alert alert-{{ category }}">
@@ -59,7 +59,7 @@
                     <input type="text" name="secret_key" placeholder="Enter admin secret key">
                 </div>
 
-                <button type="submit">Register Now</button>
+                <button type="submit" class="btn-submit">Register Now</button>
 
                 <div class="login">
                     <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login Now</a></p>

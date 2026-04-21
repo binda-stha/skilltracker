@@ -347,7 +347,7 @@
                     <div class="skill-item">
                         <div class="skill-header">
                             <span class="skill-name">{{ skill.skill_name }}</span>
-                            <span class="skill-meta">{{ skill.current_progress }}% • {{ skill_hours_dict.get(skill.skill_name, 0) }}hrs</span>
+                            <span class="skill-meta">{{ skill.current_progress }}% • {{ skill.priority|capitalize or 'Medium' }} • {{ skill_hours_dict.get(skill.skill_name, 0) }}hrs</span>
                         </div>
                         {% if skill.description %}
                         <div class="skill-description">{{ skill.description }}</div>
@@ -365,7 +365,7 @@
                     <div class="skill-item">
                         <div class="skill-header">
                             <span class="skill-name">{{ skill.skill_name }}</span>
-                            <span class="skill-meta">{{ skill.current_progress }}% • {{ skill_hours_dict.get(skill.skill_name, 0) }}hrs</span>
+                            <span class="skill-meta">{{ skill.current_progress }}% • {{ skill.priority|capitalize or 'Medium' }} • {{ skill_hours_dict.get(skill.skill_name, 0) }}hrs</span>
                         </div>
                         {% if skill.description %}
                         <div class="skill-description">{{ skill.description }}</div>
@@ -383,7 +383,7 @@
                     <div class="skill-item">
                         <div class="skill-header">
                             <span class="skill-name">{{ skill.skill_name }}</span>
-                            <span class="skill-meta">{{ skill.current_progress }}% • {{ skill_hours_dict.get(skill.skill_name, 0) }}hrs</span>
+                            <span class="skill-meta">{{ skill.current_progress }}% • {{ skill.priority|capitalize or 'Medium' }} • {{ skill_hours_dict.get(skill.skill_name, 0) }}hrs</span>
                         </div>
                         {% if skill.description %}
                         <div class="skill-description">{{ skill.description }}</div>

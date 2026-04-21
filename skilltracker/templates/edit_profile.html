@@ -5,9 +5,553 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile — SkillTracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+         :root {
+            --brand: #0f172a;
+            --accent: #6366f1;
+            --accent-soft: #eef2ff;
+            --accent-mid: #c7d2fe;
+            --surface: #ffffff;
+            --bg: #f8f9fc;
+            --border: #e2e8f0;
+            --border-hover: #c7d2fe;
+            --text: #0f172a;
+            --muted: #64748b;
+            --hint: #94a3b8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --success-bg: #f0fdf4;
+            --danger-bg: #fef2f2;
+            --radius-sm: 6px;
+            --radius: 10px;
+            --radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
+            --shadow: 0 4px 16px rgba(0, 0, 0, .07);
+            --nav-h: 60px;
+        }
+        
+        html {
+            font-size: 15px;
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        /* ── NAV ── */
+        
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--nav-h);
+            background: var(--brand);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            gap: 1rem;
+        }
+        
+        .brand {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+            letter-spacing: -.01em;
+            white-space: nowrap;
+        }
+        
+        .brand i {
+            color: #818cf8;
+            font-size: .95rem;
+        }
+        
+        .brand span {
+            color: #818cf8;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: .15rem;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .35rem .75rem;
+            border-radius: var(--radius-sm);
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: .82rem;
+            font-weight: 500;
+            transition: background .15s, color .15s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, .08);
+            color: #fff;
+        }
+        
+        .nav-links a.danger {
+            color: #fca5a5;
+        }
+        
+        .nav-links a.danger:hover {
+            background: rgba(239, 68, 68, .15);
+            color: #fca5a5;
+        }
+        
+        .nav-links a i {
+            font-size: .78rem;
+        }
+        /* ── LAYOUT ── */
+        
+        .main {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 2rem 1.25rem 4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: .82rem;
+            font-weight: 500;
+            transition: color .15s;
+        }
+        
+        .back-btn:hover {
+            color: var(--accent);
+        }
+        
+        .back-btn i {
+            font-size: .75rem;
+        }
+        /* ── PAGE HEADER ── */
+        
+        .page-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .page-header-left h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            color: var(--text);
+        }
+        
+        .page-header-left p {
+            font-size: .82rem;
+            color: var(--muted);
+            margin-top: .2rem;
+        }
+        
+        .email-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .3rem .7rem;
+            background: var(--accent-soft);
+            border: 1px solid var(--accent-mid);
+            border-radius: 99px;
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--accent);
+        }
+        /* ── CARD ── */
+        
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+        /* ── SECTION LABEL ── */
+        
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 1.4rem 1.6rem .8rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .section-label:first-child {
+            border-top: none;
+            padding-top: 1.6rem;
+        }
+        
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        /* ── FORM ── */
+        
+        .form-body {
+            padding: 0 1.6rem 1.6rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 560px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: .35rem;
+        }
+        
+        label {
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: .005em;
+        }
+        
+        .required {
+            color: var(--accent);
+        }
+        
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-wrap .icon {
+            position: absolute;
+            left: .9rem;
+            color: var(--hint);
+            font-size: .82rem;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        input[type="text"],
+        input[type="tel"],
+        input[type="email"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: .6rem .9rem .6rem 2.4rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .88rem;
+            color: var(--text);
+            background: #fdfdff;
+            transition: border-color .15s, box-shadow .15s, background .15s;
+            outline: none;
+            appearance: none;
+        }
+        
+        input[type="text"]:focus,
+        input[type="tel"]:focus,
+        input[type="email"]:focus,
+        input[type="url"]:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .12);
+            background: #fff;
+        }
+        
+        input[type="text"]:hover:not(:focus):not(:disabled),
+        input[type="tel"]:hover:not(:focus):not(:disabled),
+        input[type="email"]:hover:not(:focus):not(:disabled),
+        input[type="url"]:hover:not(:focus):not(:disabled),
+        textarea:hover:not(:focus) {
+            border-color: #b4b9d4;
+        }
+        
+        input:disabled {
+            background: var(--bg);
+            color: var(--muted);
+            cursor: not-allowed;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 110px;
+            line-height: 1.55;
+        }
+        
+        .field-hint {
+            font-size: .75rem;
+            color: var(--hint);
+        }
+        /* no-icon inputs */
+        
+        .no-icon input,
+        .no-icon textarea {
+            padding-left: .9rem;
+        }
+        /* ── FOOTER ── */
+        
+        .form-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: .75rem;
+            padding: 1.2rem 1.6rem;
+            border-top: 1px solid var(--border);
+            background: var(--bg);
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: .45rem;
+            padding: .55rem 1.25rem;
+            border-radius: var(--radius);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            text-decoration: none;
+            transition: all .15s;
+        }
+        
+        .btn i {
+            font-size: .8rem;
+        }
+        
+        .btn-ghost {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--muted);
+        }
+        
+        .btn-ghost:hover {
+            background: var(--bg);
+            border-color: #b0b7cb;
+            color: var(--text);
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        
+        .btn-primary:hover {
+            background: #4f46e5;
+            border-color: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, .35);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        /* ── ALERTS ── */
+        
+        .alerts {
+            padding: 1rem 1.6rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+        }
+        
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: .75rem;
+            padding: .7rem 1rem;
+            border-radius: var(--radius);
+            font-size: .83rem;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        
+        .alert-success {
+            background: var(--success-bg);
+            border: 1px solid #bbf7d0;
+            color: #15803d;
+        }
+        
+        .alert-error {
+            background: var(--danger-bg);
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+        
+        .alert-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            line-height: 1;
+            opacity: .6;
+            color: inherit;
+            flex-shrink: 0;
+            padding: 0;
+        }
+        
+        .alert-close:hover {
+            opacity: 1;
+        }
+        /* ── QUICK LINKS ── */
+        
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: .75rem;
+            padding: 1.25rem 1.5rem 1.5rem;
+        }
+        
+        .quick-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .55rem;
+            padding: 1.1rem .75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: #fdfdff;
+            color: var(--text);
+            text-decoration: none;
+            font-size: .78rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all .18s;
+            cursor: pointer;
+        }
+        
+        .quick-link:hover {
+            border-color: var(--accent-mid);
+            background: var(--accent-soft);
+            color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, .1);
+        }
+        
+        .ql-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .85rem;
+            transition: transform .18s;
+        }
+        
+        .quick-link:hover .ql-icon {
+            transform: scale(1.08);
+        }
+        
+        .ql-indigo {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        
+        .ql-blue {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        
+        .ql-green {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        
+        .ql-teal {
+            background: #f0fdfa;
+            color: #0d9488;
+        }
+        
+        .ql-amber {
+            background: #fffbeb;
+            color: #d97706;
+        }
+        
+        .ql-violet {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+        
+        .ql-rose {
+            background: #fff1f2;
+            color: #e11d48;
+        }
+        /* ── CARD DIVIDER HEADER ── */
+        
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.1rem 1.6rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .card-top-title {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: .95rem;
+            color: var(--text);
+        }
+        
+        .card-top-title i {
+            color: var(--accent);
+            font-size: .85rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -33,43 +577,52 @@
             <i class="fas fa-arrow-left"></i> Back to Dashboard
         </a>
 
-        <!-- ── Profile Form ── -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-title">
-                    <i class="fas fa-user-edit"></i> Edit Profile
-                </div>
-                <span style="font-size:0.8rem;color:var(--muted)">{{ session.email }}</span>
+        <!-- ── Page heading ── -->
+        <div class="page-header">
+            <div class="page-header-left">
+                <h1>Edit Profile</h1>
+                <p>Keep your information up to date for a better CV and dashboard experience.</p>
             </div>
+            <span class="email-badge">
+                <i class="fas fa-envelope" style="font-size:.72rem"></i>
+                {{ session.email }}
+            </span>
+        </div>
 
-            <div class="card-body">
+        <!-- ── Profile Form Card ── -->
+        <div class="card">
 
-                <!-- Flash messages -->
-                {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            <!-- Flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+            <div class="alerts">
+                {% for category, message in messages %}
                 <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
                     <span>{{ message }}</span>
                     <button class="alert-close" onclick="this.parentElement.remove()">×</button>
                 </div>
-                {% endfor %} {% endif %} {% endwith %}
+                {% endfor %}
+            </div>
+            {% endif %} {% endwith %}
 
-                <form method="POST" action="{{ url_for('auth.edit_profile') }}">
+            <form method="POST" action="{{ url_for('auth.edit_profile') }}">
 
-                    <!-- Personal Info -->
-                    <div class="section-label">Personal Information</div>
+                <!-- Personal Information -->
+                <div class="section-label">Personal Information</div>
+                <div class="form-body">
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="full_name">Full Name <span class="required">*</span></label>
-                            <div class="input-icon-wrap">
-                                <i class="fas fa-user"></i>
-                                <input type="text" class="form-control" id="full_name" name="full_name" value="{{ profile.full_name if profile else '' }}" placeholder="Jane Doe" required>
+                            <div class="input-wrap">
+                                <i class="fas fa-user icon"></i>
+                                <input type="text" id="full_name" name="full_name" value="{{ profile.full_name if profile else '' }}" placeholder="Jane Doe" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone</label>
-                            <div class="input-icon-wrap">
-                                <i class="fas fa-phone"></i>
-                                <input type="tel" class="form-control" id="phone" name="phone" value="{{ profile.phone if profile else '' }}" placeholder="+1 (555) 000-0000">
+                            <div class="input-wrap">
+                                <i class="fas fa-phone icon"></i>
+                                <input type="tel" id="phone" name="phone" value="{{ profile.phone if profile else '' }}" placeholder="+1 (555) 000-0000">
                             </div>
                         </div>
                     </div>
@@ -77,113 +630,111 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label>Email</label>
-                            <div class="input-icon-wrap">
-                                <i class="fas fa-envelope"></i>
-                                <input type="email" class="form-control" value="{{ session.email }}" disabled>
+                            <div class="input-wrap">
+                                <i class="fas fa-envelope icon"></i>
+                                <input type="email" value="{{ session.email }}" disabled>
                             </div>
                             <span class="field-hint">Email cannot be changed.</span>
                         </div>
                         <div class="form-group">
                             <label for="address">Address</label>
-                            <div class="input-icon-wrap">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <input type="text" class="form-control" id="address" name="address" value="{{ profile.address if profile else '' }}" placeholder="City, Country">
+                            <div class="input-wrap">
+                                <i class="fas fa-map-marker-alt icon"></i>
+                                <input type="text" id="address" name="address" value="{{ profile.address if profile else '' }}" placeholder="City, Country">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Online Presence -->
-                    <div class="section-label">Online Presence</div>
+                </div>
+
+                <!-- Online Presence -->
+                <div class="section-label">Online Presence</div>
+                <div class="form-body">
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="linkedin">LinkedIn</label>
-                            <div class="input-icon-wrap">
-                                <i class="fab fa-linkedin"></i>
-                                <input type="url" class="form-control" id="linkedin" name="linkedin" value="{{ profile.linkedin if profile else '' }}" placeholder="https://linkedin.com/in/yourprofile">
+                            <div class="input-wrap">
+                                <i class="fab fa-linkedin icon"></i>
+                                <input type="url" id="linkedin" name="linkedin" value="{{ profile.linkedin if profile else '' }}" placeholder="https://linkedin.com/in/yourprofile">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="github">GitHub</label>
-                            <div class="input-icon-wrap">
-                                <i class="fab fa-github"></i>
-                                <input type="url" class="form-control" id="github" name="github" value="{{ profile.github if profile else '' }}" placeholder="https://github.com/yourusername">
+                            <div class="input-wrap">
+                                <i class="fab fa-github icon"></i>
+                                <input type="url" id="github" name="github" value="{{ profile.github if profile else '' }}" placeholder="https://github.com/yourusername">
                             </div>
                         </div>
                     </div>
 
-                    <!-- Professional Summary -->
-                    <div class="section-label">Professional Summary</div>
+                </div>
 
-                    <div class="form-group">
+                <!-- Professional Summary -->
+                <div class="section-label">Professional Summary</div>
+                <div class="form-body">
+
+                    <div class="form-group no-icon">
                         <label for="summary">Summary</label>
-                        <textarea class="form-control" id="summary" name="summary" rows="4" placeholder="Write a brief professional summary about yourself — your experience, strengths, and goals...">{{ profile.professional_summary if profile else '' }}</textarea>
+                        <div class="input-wrap">
+                            <textarea id="summary" name="summary" rows="4" placeholder="Write a brief professional summary — your experience, strengths, and goals...">{{ profile.professional_summary if profile else '' }}</textarea>
+                        </div>
                         <span class="field-hint">This will appear on your generated CV.</span>
                     </div>
 
-                    <!-- Form Actions -->
-                    <div class="form-footer">
-                        <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline">
-                            <i class="fas fa-times"></i> Cancel
-                        </a>
-                        <button type="submit" class="btn btn-accent">
-            <i class="fas fa-save"></i> Save Profile
-          </button>
-                    </div>
+                </div>
 
-                </form>
-            </div>
+                <!-- Actions -->
+                <div class="form-footer">
+                    <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-ghost">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Profile
+                    </button>
+                </div>
+
+            </form>
         </div>
 
-        <!-- ── Quick Links ── -->
+        <!-- ── Profile Management Card ── -->
         <div class="card">
-            <div class="card-header">
-                <div class="card-title">
+            <div class="card-top">
+                <div class="card-top-title">
                     <i class="fas fa-grip-horizontal"></i> Profile Management
                 </div>
             </div>
-            <div class="card-body">
-                <div class="quick-grid">
-
-                    <a href="{{ url_for('auth.add_education') }}" class="quick-link">
-                        <div class="ql-icon ql-blue"><i class="fas fa-graduation-cap"></i></div>
-                        Add Education
-                    </a>
-
-                    <a href="{{ url_for('auth.add_experience') }}" class="quick-link">
-                        <div class="ql-icon ql-green"><i class="fas fa-briefcase"></i></div>
-                        Add Experience
-                    </a>
-
-                    <a href="{{ url_for('auth.add_project') }}" class="quick-link">
-                        <div class="ql-icon ql-teal"><i class="fas fa-project-diagram"></i></div>
-                        Add Project
-                    </a>
-
-                    <a href="{{ url_for('auth.add_certification') }}" class="quick-link">
-                        <div class="ql-icon ql-amber"><i class="fas fa-certificate"></i></div>
-                        Add Certification
-                    </a>
-
-                    <a href="{{ url_for('auth.generate_cv') }}" class="quick-link">
-                        <div class="ql-icon" style="background:#f3e8ff;color:#7c3aed"><i class="fas fa-file-alt"></i></div>
-                        Generate CV
-                    </a>
-
-                    <a href="{{ url_for('auth.user_dashboard') }}" class="quick-link">
-                        <div class="ql-icon" style="background:#fce7f3;color:#9d174d"><i class="fas fa-chart-line"></i></div>
-                        Dashboard
-                    </a>
-
-                </div>
+            <div class="quick-grid">
+                <a href="{{ url_for('auth.add_education') }}" class="quick-link">
+                    <div class="ql-icon ql-blue"><i class="fas fa-graduation-cap"></i></div>
+                    Add Education
+                </a>
+                <a href="{{ url_for('auth.add_experience') }}" class="quick-link">
+                    <div class="ql-icon ql-green"><i class="fas fa-briefcase"></i></div>
+                    Add Experience
+                </a>
+                <a href="{{ url_for('auth.add_project') }}" class="quick-link">
+                    <div class="ql-icon ql-teal"><i class="fas fa-project-diagram"></i></div>
+                    Add Project
+                </a>
+                <a href="{{ url_for('auth.add_certification') }}" class="quick-link">
+                    <div class="ql-icon ql-amber"><i class="fas fa-certificate"></i></div>
+                    Add Certification
+                </a>
+                <a href="{{ url_for('auth.generate_cv') }}" class="quick-link">
+                    <div class="ql-icon ql-violet"><i class="fas fa-file-alt"></i></div>
+                    Generate CV
+                </a>
+                <a href="{{ url_for('auth.user_dashboard') }}" class="quick-link">
+                    <div class="ql-icon ql-rose"><i class="fas fa-chart-line"></i></div>
+                    Dashboard
+                </a>
             </div>
         </div>
 
     </div>
-    <!-- /main -->
 
     <script>
-        // Auto-dismiss alerts after 5s
         setTimeout(() => {
             document.querySelectorAll('.alert').forEach(a => a.remove());
         }, 5000);

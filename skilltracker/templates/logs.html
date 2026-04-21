@@ -5,49 +5,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Skill Logs - SkillTracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .page-wrapper {
+            background: var(--bg);
+            min-height: 100vh;
+            padding: 24px;
+        }
+        
+        .page-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .page-header {
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            font-size: 13px;
+            color: var(--text2);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .action-btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .action-btn-primary:hover {
+            background: var(--accent2);
+        }
+        
+        .action-btn-secondary {
+            background: var(--bg3);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .action-btn-secondary:hover {
+            background: var(--bg4);
+        }
+        
+        .stats-box {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            color: var(--green);
+            font-weight: 500;
+            font-size: 13px;
+        }
+        
+        .table-wrapper {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: var(--bg3);
+        }
+        
+        th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text2);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        td {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--text);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        tbody tr:hover {
+            background: var(--bg3);
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .table-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .table-btn-edit {
+            background: rgba(124, 106, 247, 0.2);
+            color: var(--accent2);
+        }
+        
+        .table-btn-edit:hover {
+            background: rgba(124, 106, 247, 0.3);
+        }
+        
+        .table-btn-delete {
+            background: rgba(255, 95, 109, 0.2);
+            color: var(--red);
+        }
+        
+        .table-btn-delete:hover {
+            background: rgba(255, 95, 109, 0.3);
+        }
+        
+        .empty-state {
+            background: var(--bg2);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            color: var(--text2);
+        }
+        
+        .empty-state-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 20px;
+            transition: color 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            color: var(--accent);
+        }
+    </style>
 </head>
 
-<body>
-    <nav class="navbar-custom">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 40px;">
-            <a href="{{ url_for('auth.user_dashboard') }}" style="color: white; font-family: var(--font-head); font-weight: 700; font-size: 24px; text-decoration: none;">
-                <i class="fas fa-chart-line" style="margin-right: 10px;"></i>SkillTracker
-            </a>
-            <div style="display: flex; gap: 20px;">
-                <a href="{{ url_for('auth.user_dashboard') }}" style="color: white; text-decoration: none;">Dashboard</a>
-                <a href="{{ url_for('auth.logout') }}" style="color: white; text-decoration: none;">Logout</a>
+<body style="background: var(--bg);">
+    <div class="page-wrapper">
+        <div class="page-container">
+            <a href="{{ url_for('auth.user_dashboard') }}" class="back-btn">← Back to Dashboard</a>
+
+            <div class="page-header">
+                <h1 class="page-title">Skill Logs</h1>
+                <p class="page-subtitle">View and manage your learning sessions</p>
             </div>
-        </div>
-    </nav>
 
-    <div style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
-        <div style="margin-bottom: 30px;">
-            <h2 style="color: var(--primary); font-family: var(--font-head); font-weight: 600; margin-bottom: 20px;">Skill Logs</h2>
-
-            <div style="margin-bottom: 20px;">
-                <a href="{{ url_for('auth.add_log') }}" class="btn" style="background: var(--success); color: white; margin-right: 10px;">Add Log</a>
-                <a href="{{ url_for('auth.export_logs_csv') }}" class="btn" style="background: var(--accent); color: white; margin-right: 10px;">Export CSV</a>
-                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline-secondary">Dashboard</a>
+            <div class="action-buttons">
+                <a href="{{ url_for('auth.add_log') }}" class="action-btn action-btn-primary">+ Add Log</a>
+                <a href="{{ url_for('auth.export_logs_csv') }}" class="action-btn action-btn-primary">⬇ Export CSV</a>
+                <a href="{{ url_for('auth.user_dashboard') }}" class="action-btn action-btn-secondary">Dashboard</a>
             </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" role="alert" style="margin-bottom: 20px;">
+            <div style="background: {% if category == 'error' %}rgba(255, 95, 109, 0.15){% else %}rgba(52, 199, 122, 0.15){% endif %}; border: 1px solid {% if category == 'error' %}var(--red){% else %}var(--green){% endif %}; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; color: {% if category == 'error' %}var(--red){% else %}var(--green){% endif %}; font-size: 13px;">
                 {{ message }}
             </div>
             {% endfor %} {% endif %} {% endwith %}
 
-            <div class="alert alert-info" style="margin-bottom: 20px;">
+            <div class="stats-box">
                 Total Hours Logged: {{ total_hours }}
             </div>
-        </div>
 
-        {% if logs %}
-        <div class="table-container">
-            <div class="table-responsive">
-                <table class="table">
+            {% if logs %}
+            <div class="table-wrapper">
+                <table>
                     <thead>
                         <tr>
                             <th>#</th>
@@ -65,22 +238,27 @@
                             <td>{{ loop.index }}</td>
                             <td>{{ log.skill_name or 'Unknown' }}</td>
                             <td>{{ log.log_date }}</td>
-                            <td>{{ log.hours_spent }}</td>
+                            <td>{{ log.hours_spent }}h</td>
                             <td>{{ log.reflection_notes or '-' }}</td>
                             <td>{{ log.created_at }}</td>
                             <td>
-                                <a href="{{ url_for('auth.edit_log', log_id=log.log_id) }}" class="btn btn-sm" style="margin-right:4px;">Edit</a>
-                                <a href="{{ url_for('auth.delete_log', log_id=log.log_id) }}" class="btn btn-sm" style="background: #e74c3c; color: #fff;" onclick="return confirm('Delete this log entry?');">Delete</a>
+                                <div class="table-actions">
+                                    <a href="{{ url_for('auth.edit_log', log_id=log.log_id) }}" class="table-btn table-btn-edit">✎ Edit</a>
+                                    <a href="{{ url_for('auth.delete_log', log_id=log.log_id) }}" class="table-btn table-btn-delete" onclick="return confirm('Delete this log entry?');">✕ Delete</a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-title">No logs recorded yet</div>
+                <p>Create one to track your learning progress. <a href="{{ url_for('auth.add_log') }}" style="color: var(--accent);">Add your first log →</a></p>
+            </div>
+            {% endif %}
         </div>
-        {% else %}
-        <div class="alert alert-info">No logs recorded yet. Create one to track your learning progress.</div>
-        {% endif %}
     </div>
 </body>
 

@@ -1,156 +1,76 @@
--- ============================================================
 -- SkillTracker Database Schema
 -- BCA 6th Semester Project II - Tribhuvan University
 -- Author: Binda Shrestha
--- Database: skilltracker
--- ============================================================
+-- Created: March 27, 2026
 
--- Create database if it doesn't exist
+-- Create database
 CREATE DATABASE IF NOT EXISTS skilltracker;
 USE skilltracker;
 
--- ============================================================
--- TABLE: roles
--- Purpose: Store role definitions for users
--- ============================================================
-CREATE TABLE roles (
-    role_ID INT PRIMARY KEY AUTO_INCREMENT,
-    role_name VARCHAR(50) UNIQUE NOT NULL,
-    description VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Insert default roles
-INSERT INTO roles (role_name, description) VALUES
-('admin', 'Administrator with full system access'),
-('user', 'Regular user with limited access');
-
--- ============================================================
--- TABLE: users
--- Purpose: Store user account information
--- Security: Passwords are hashed using werkzeug.security
--- ============================================================
-CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    email VARCHAR(120) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role_ID INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (role_ID) REFERENCES roles(role_ID),
-    INDEX idx_email (email),
-    INDEX idx_role (role_ID)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================
--- TABLE: skills
--- Purpose: Store skill information for users
--- Relationships: Each skill belongs to one user
--- ============================================================
-CREATE TABLE skills (
-    skill_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    skill_name VARCHAR(150) NOT NULL,
+-- Roles table (Admin=1, User=2)
+CREATE TABLE IF NOT EXISTS roles (
+    role_ID INT PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL UNIQUE,
     description TEXT,
-    current_progress INT DEFAULT 0 CHECK (current_progress >= 0 AND current_progress <= 100),
-    target_hours INT DEFAULT 0,
-    target_date DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_user (user_id),
-    INDEX idx_progress (current_progress),
-    INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- TABLE: user_profile
--- Purpose: Store personal information for CV generation
--- ============================================================
-CREATE TABLE user_profile (
-    profile_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    full_name VARCHAR(100),
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role_ID INT NOT NULL DEFAULT 2,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
     phone VARCHAR(20),
     address TEXT,
-    linkedin VARCHAR(255),
-    github VARCHAR(255),
-    professional_summary TEXT,
+    bio TEXT,
+    profile_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (role_ID) REFERENCES roles(role_ID) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Skills table
+CREATE TABLE IF NOT EXISTS skills (
+    skill_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    skill_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    category VARCHAR(100),
+    current_progress DECIMAL(5,2) DEFAULT 0.00 CHECK (current_progress >= 0 AND current_progress <= 100),
+    target_hours DECIMAL(8,2) DEFAULT 0.00,
+    proficiency_level ENUM('Beginner', 'Intermediate', 'Advanced', 'Expert') DEFAULT 'Beginner',
+    priority ENUM('Low', 'Medium', 'High') DEFAULT 'Medium',
+    target_date DATE,
+    status ENUM('Active', 'Completed', 'Paused', 'Archived') DEFAULT 'Active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_profile (user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    INDEX idx_user_skill (user_id, skill_name),
+    INDEX idx_category (category),
+    INDEX idx_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- TABLE: education
--- Purpose: Store education details for CV
--- ============================================================
-CREATE TABLE education (
-    education_id INT PRIMARY KEY AUTO_INCREMENT,
+-- Progress log table (for tracking skill progress history)
+CREATE TABLE IF NOT EXISTS progress_log (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    skill_id INT NOT NULL,
     user_id INT NOT NULL,
-    degree VARCHAR(100) NOT NULL,
-    institution VARCHAR(100) NOT NULL,
-    start_year YEAR NOT NULL,
-    end_year YEAR,
-    gpa DECIMAL(3,2),
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    previous_progress DECIMAL(5,2),
+    new_progress DECIMAL(5,2) NOT NULL,
+    hours_spent DECIMAL(5,2) DEFAULT 0.00,
+    notes TEXT,
+    log_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (skill_id) REFERENCES skills(skill_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_skill_date (skill_id, log_date),
+    INDEX idx_user_date (user_id, log_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- TABLE: experience
--- Purpose: Store work experience for CV
--- ============================================================
-CREATE TABLE experience (
-    experience_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    job_title VARCHAR(100) NOT NULL,
-    company VARCHAR(100) NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================
--- TABLE: projects
--- Purpose: Store project details for CV
--- ============================================================
-CREATE TABLE projects (
-    project_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    project_name VARCHAR(100) NOT NULL,
-    description TEXT,
-    technologies VARCHAR(255),
-    github_link VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================
--- TABLE: certifications
--- Purpose: Store certification details for CV
--- ============================================================
-CREATE TABLE certifications (
-    certification_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    certification_name VARCHAR(100) NOT NULL,
-    issuing_organization VARCHAR(100) NOT NULL,
-    issue_date DATE NOT NULL,
-    expiry_date DATE,
-    credential_id VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================
--- TABLE: skill_logs
--- Purpose: Store skill practice logs and hours tracking
--- ============================================================
-CREATE TABLE skill_logs (
+-- Skill logs table (daily learning logs)
+CREATE TABLE IF NOT EXISTS skill_logs (
     log_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     skill_id INT NOT NULL,
@@ -160,52 +80,133 @@ CREATE TABLE skill_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (skill_id) REFERENCES skills(skill_id) ON DELETE CASCADE,
-    INDEX idx_user_skill (user_id, skill_id),
-    INDEX idx_log_date (log_date)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    INDEX idx_user_date (user_id, log_date),
+    INDEX idx_skill_date (skill_id, log_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- User progress summary
-CREATE VIEW user_progress_summary AS
-SELECT 
-    u.id,
+-- User profile table (extended profile information)
+CREATE TABLE IF NOT EXISTS user_profile (
+    profile_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL UNIQUE,
+    full_name VARCHAR(255),
+    phone VARCHAR(20),
+    address TEXT,
+    linkedin VARCHAR(255),
+    github VARCHAR(255),
+    professional_summary TEXT,
+    linkedin_url VARCHAR(255),
+    github_url VARCHAR(255),
+    portfolio_url VARCHAR(255),
+    resume_file VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Education table
+CREATE TABLE IF NOT EXISTS education (
+    education_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    degree VARCHAR(255) NOT NULL,
+    institution VARCHAR(255) NOT NULL,
+    field_of_study VARCHAR(255),
+    start_year INT,
+    end_year INT,
+    gpa VARCHAR(10),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_education (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Experience table
+CREATE TABLE IF NOT EXISTS experience (
+    experience_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    job_title VARCHAR(255) NOT NULL,
+    company VARCHAR(255) NOT NULL,
+    location VARCHAR(255),
+    start_date DATE,
+    end_date DATE,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_experience (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Projects table
+CREATE TABLE IF NOT EXISTS projects (
+    project_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    project_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    technologies VARCHAR(255),
+    github_link VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_projects (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Certifications table
+CREATE TABLE IF NOT EXISTS certifications (
+    certification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    certification_name VARCHAR(255) NOT NULL,
+    issuing_organization VARCHAR(255) NOT NULL,
+    issue_date DATE,
+    expiry_date DATE,
+    credential_id VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_certifications (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Insert default roles
+INSERT IGNORE INTO roles (role_ID, role_name, description) VALUES
+(1, 'Admin', 'System administrator with full access'),
+(2, 'User', 'Regular user with skill tracking access');
+
+-- Insert test admin user (password: admin123)
+INSERT IGNORE INTO users (email, password, role_ID, first_name, last_name) VALUES
+('admin@skilltracker.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LeCt1uLjRp2lMiO/u', 1, 'System', 'Administrator');
+
+-- Insert test regular user (password: password123)
+INSERT IGNORE INTO users (email, password, role_ID, first_name, last_name) VALUES
+('student@skilltracker.com', '$2b$12$e6p5vQKpMqfVKBPgzL.5Re.8Q9pKjJcKvJcKvJcKvJcKvJcKvJcKv', 2, 'John', 'Doe');
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role_ID);
+CREATE INDEX IF NOT EXISTS idx_skills_user_progress ON skills(user_id, current_progress);
+CREATE INDEX IF NOT EXISTS idx_progress_log_skill_date ON progress_log(skill_id, log_date DESC);
+CREATE INDEX IF NOT EXISTS idx_skill_logs_user_date ON skill_logs(user_id, log_date DESC);
+
+-- Create view for user statistics
+CREATE OR REPLACE VIEW user_skill_stats AS
+SELECT
+    u.id as user_id,
     u.email,
+    u.first_name,
+    u.last_name,
     COUNT(s.skill_id) as total_skills,
-    AVG(s.current_progress) as average_progress,
-    sum(CASE WHEN s.current_progress = 100 THEN 1 ELSE 0 END) as completed_skills,
-    MIN(s.created_at) as first_skill_date,
-    MAX(s.updated_at) as last_updated
+    AVG(s.current_progress) as avg_progress,
+    SUM(s.target_hours) as total_target_hours,
+    COUNT(CASE WHEN s.status = 'Completed' THEN 1 END) as completed_skills,
+    COUNT(CASE WHEN s.proficiency_level = 'Expert' THEN 1 END) as expert_skills
 FROM users u
 LEFT JOIN skills s ON u.id = s.user_id
-WHERE u.role_ID = 2
-GROUP BY u.id, u.email;
+GROUP BY u.id, u.email, u.first_name, u.last_name;
 
--- Skill categories summary
-CREATE VIEW skill_category_summary AS
-SELECT 
-    s.skill_name,
-    COUNT(*) as users_with_skill,
-    AVG(s.current_progress) as average_progress,
-    MIN(s.current_progress) as min_progress,
-    MAX(s.current_progress) as max_progress
-FROM skills s
-GROUP BY s.skill_name;
+-- Create view for skill categories
+CREATE OR REPLACE VIEW skill_category_stats AS
+SELECT
+    category,
+    COUNT(*) as skill_count,
+    AVG(current_progress) as avg_progress,
+    COUNT(CASE WHEN status = 'Completed' THEN 1 END) as completed_count
+FROM skills
+WHERE category IS NOT NULL AND category != ''
+GROUP BY category
+ORDER BY skill_count DESC;
 
--- ============================================================
--- INDICES for Performance Optimization
--- ============================================================
-
-CREATE INDEX idx_skills_user_skill ON skills(user_id, skill_id);
-CREATE INDEX idx_users_role_created ON users(role_ID, created_at);
-
--- ============================================================
--- SAMPLE DATA (For Testing - Optional)
--- ============================================================
-
--- Sample Users (Passwords are hashed - these are examples)
--- INSERT INTO users (email, password, role_ID) VALUES
--- ('admin@skilltracker.com', 'hashed_password_here', 1),
--- ('student@skilltracker.com', 'hashed_password_here', 2);
-
--- ============================================================
--- END OF SCHEMA
--- ============================================================
+COMMIT;

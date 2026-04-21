@@ -5,79 +5,206 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Skill - SkillTracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .form-page {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .form-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg3);
+            color: var(--text);
+            font-size: 13px;
+            margin-bottom: 16px;
+            font-family: 'DM Sans', sans-serif;
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 106, 247, 0.1);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .progress-wrapper {
+            margin-bottom: 16px;
+        }
+        
+        .progress-display {
+            height: 6px;
+            background: var(--bg4);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            color: var(--text2);
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .form-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .form-btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .form-btn-primary:hover {
+            background: var(--accent2);
+        }
+        
+        .form-btn-secondary {
+            background: var(--bg3);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .form-btn-secondary:hover {
+            background: var(--bg4);
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            color: var(--accent);
+        }
+    </style>
 </head>
 
-<body>
-    <div class="form-container">
-        <nav class="mb-4">
-            <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline-secondary">← Back to Dashboard</a>
-        </nav>
+<body style="background: var(--bg);">
+    <div class="form-page">
+        <div class="form-card">
+            <a href="{{ url_for('auth.user_dashboard') }}" class="back-btn">← Back to Dashboard</a>
+            <h2 class="form-title">Add New Skill</h2>
 
-        <h2 class="form-title">📚 Add New Skill</h2>
 
-        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
-        <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
-            {{ message }}
-            <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'">×</button>
-        </div>
-        {% endfor %} {% endif %} {% endwith %}
-
-        <form method="POST" action="{{ url_for('auth.add_skill') }}">
-            <!-- Skill Name -->
-            <div class="mb-3">
-                <label for="skill_name" class="form-label">Skill Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="skill_name" name="skill_name" placeholder="e.g., Python, JavaScript, Data Analysis" required>
-
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            <div style="background: {% if category == 'error' %}rgba(255, 95, 109, 0.15){% else %}rgba(52, 199, 122, 0.15){% endif %}; border: 1px solid {% if category == 'error' %}var(--red){% else %}var(--green){% endif %}; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; color: {% if category == 'error' %}var(--red){% else %}var(--green){% endif %}; font-size: 13px;">
+                {{ message }}
             </div>
+            {% endfor %} {% endif %} {% endwith %}
 
-            <!-- Description -->
-            <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Add details about this skill..."></textarea>
+            <form method="POST" action="{{ url_for('auth.add_skill') }}">
+                <label class="form-label">Skill Name *</label>
+                <input type="text" class="form-input" name="skill_name" placeholder="e.g., Python, JavaScript" required>
 
-            </div>
+                <label class="form-label">Description</label>
+                <textarea class="form-textarea" name="description" placeholder="Add details about this skill..."></textarea>
 
-            <!-- Initial Progress -->
-            <div class="mb-3">
-                <label for="progress" class="form-label">Initial Progress (%)</label>
-                <input type="number" class="form-control" id="progress" name="progress" min="0" max="100" value="0">
+                <label class="form-label">Initial Progress (%)</label>
+                <input type="number" class="form-input" id="progress" name="progress" min="0" max="100" value="0">
+                <div class="progress-wrapper">
+                    <div class="progress-display">
+                        <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text">Progress: <span id="progressValue">0</span>%</div>
+                </div>
 
+                <label class="form-label">Priority</label>
+                <select class="form-select" name="priority" required>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="High">High</option>
+                    <option value="Low">Low</option>
+                </select>
 
-            </div>
+                <label class="form-label">Target Learning Hours</label>
+                <input type="number" class="form-input" name="target_hours" min="0" value="0" step="1" required>
 
-            <!-- Target Hours -->
-            <div class="mb-3">
-                <label for="target_hours" class="form-label">Target Learning Hours</label>
-                <input type="number" class="form-control" id="target_hours" name="target_hours" min="0" value="0" step="1" required>
+                <label class="form-label">Target Completion Date (optional)</label>
+                <input type="date" class="form-input" name="target_date">
 
-            </div>
-
-            <!-- Target Date -->
-            <div class="mb-3">
-                <label for="target_date" class="form-label">Target Completion Date (optional)</label>
-                <input type="date" class="form-control" id="target_date" name="target_date">
-
-                <!-- CSRF Token -->
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
-                <!-- Buttons -->
-                <div style="display: flex; gap: 10px;">
-                    <button type="submit" class="btn btn-lg" style="flex-grow: 1;">✅ Add Skill</button>
-                    <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-light btn-lg">Cancel</a>
+                <div class="form-buttons">
+                    <button type="submit" class="form-btn form-btn-primary">✓ Add Skill</button>
+                    <a href="{{ url_for('auth.user_dashboard') }}" class="form-btn form-btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancel</a>
                 </div>
-        </form>
+            </form>
         </div>
+    </div>
 
-        <script>
-            document.getElementById('progress').addEventListener('input', function() {
-                const value = this.value;
-                document.getElementById('progress_bar').style.width = value + '%';
-                document.getElementById('progress_bar').textContent = value + '%';
-            });
-        </script>
+    <script>
+        document.getElementById('progress').addEventListener('input', function() {
+            const value = this.value;
+            document.getElementById('progressBar').style.width = value + '%';
+            document.getElementById('progressValue').textContent = value;
+        });
+    </script>
 </body>
 
 </html>

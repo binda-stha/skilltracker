@@ -5,85 +5,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Experience - SkillTracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .form-page {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .form-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg3);
+            color: var(--text);
+            font-size: 13px;
+            margin-bottom: 16px;
+            font-family: 'DM Sans', sans-serif;
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(124, 106, 247, 0.1);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .form-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .form-btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .form-btn-primary:hover {
+            background: var(--accent2);
+        }
+        
+        .form-btn-secondary {
+            background: var(--bg3);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .form-btn-secondary:hover {
+            background: var(--bg4);
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 13px;
+            margin-bottom: 24px;
+            transition: color 0.2s ease;
+        }
+        
+        .back-btn:hover {
+            color: var(--accent);
+        }
+    </style>
 </head>
 
-<body>
-    <nav class="navbar-custom">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px;">
-            <a href="{{ url_for('auth.user_dashboard') }}" style="text-decoration:none; color:white; font-weight:700;">📈 SkillTracker</a>
-            <div style="display: flex; gap: 12px;">
-                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-ghost">Dashboard</a>
-                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-secondary">Logout</a>
+<body style="background: var(--bg);">
+    <div class="form-page">
+        <div class="form-card">
+            <a href="{{ url_for('auth.edit_profile') }}" class="back-btn">← Back to Profile</a>
+            <h2 class="form-title">Add Professional Experience</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            <div style="background: {% if category == 'error' %}rgba(255, 95, 109, 0.15){% else %}rgba(52, 199, 122, 0.15){% endif %}; border: 1px solid {% if category == 'error' %}var(--red){% else %}var(--green){% endif %}; border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; color: {% if category == 'error' %}var(--red){% else %}var(--green){% endif %}; font-size: 13px;">
+                {{ message }}
             </div>
-        </div>
-    </nav>
+            {% endfor %} {% endif %} {% endwith %}
 
-    <div style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
-        <div style="max-width: 800px; margin: 0 auto;">
-            <div class="card">
-                <div class="card-header">
-                    <h3><i class="fas fa-briefcase" style="margin-right: 8px;"></i>Add Professional Experience</h3>
+            <form method="POST" action="{{ url_for('auth.add_experience') }}">
+                <label class="form-label">Position/Title *</label>
+                <input type="text" class="form-input" name="position" required>
+
+                <label class="form-label">Company *</label>
+                <input type="text" class="form-input" name="company" required>
+
+                <label class="form-label">Location</label>
+                <input type="text" class="form-input" name="location">
+
+                <label class="form-label">Start Date *</label>
+                <input type="date" class="form-input" name="start_date" required>
+
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-input" name="end_date">
+
+                <label class="form-label">Job Description *</label>
+                <textarea class="form-textarea" name="description" placeholder="Describe your responsibilities and achievements..." required></textarea>
+
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                <div class="form-buttons">
+                    <button type="submit" class="form-btn form-btn-primary">✓ Add Experience</button>
+                    <a href="{{ url_for('auth.edit_profile') }}" class="form-btn form-btn-secondary" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">Cancel</a>
                 </div>
-                <div class="card-body">
-                    {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
-                    </div>
-                    {% endfor %} {% endif %} {% endwith %}
-
-                    <form method="POST" action="{{ url_for('auth.add_experience') }}">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="position">Position/Title *</label>
-                                <input type="text" class="form-control" id="position" name="position" placeholder="e.g., Software Developer" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="company">Company *</label>
-                                <input type="text" class="form-control" id="company" name="company" placeholder="e.g., Tech Solutions Inc." required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="location">Location</label>
-                            <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Kathmandu, Nepal">
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="start_date">Start Date *</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="end_date">End Date</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date">
-                                <div style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">Leave empty if currently employed</div>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="description">Job Description *</label>
-                            <textarea class="form-control" id="description" name="description" rows="5" placeholder="Describe your responsibilities, achievements, and key contributions..." required></textarea>
-                        </div>
-
-                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                            <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left" style="margin-right: 8px;"></i>Back to Profile
-                            </a>
-                            <button type="submit" class="btn">
-                                    <i class="fas fa-save" style="margin-right: 8px;"></i>Add Experience
-                                </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
-    </div>
-
 </body>
 
 </html>
