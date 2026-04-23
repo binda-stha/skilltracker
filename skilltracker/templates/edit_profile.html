@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile — SkillTracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         *,
@@ -17,26 +17,27 @@
         }
         
          :root {
-            --brand: #0f172a;
-            --accent: #6366f1;
-            --accent-soft: #eef2ff;
-            --accent-mid: #c7d2fe;
-            --surface: #ffffff;
-            --bg: #f8f9fc;
-            --border: #e2e8f0;
-            --border-hover: #c7d2fe;
-            --text: #0f172a;
-            --muted: #64748b;
-            --hint: #94a3b8;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --success-bg: #f0fdf4;
-            --danger-bg: #fef2f2;
+                --brand: #16161c;
+                --accent: #7c6af7;
+                --accent2: #a593ff;
+                --accent-soft: rgba(124, 106, 247, 0.12);
+                --accent-mid: rgba(165, 147, 255, 0.45);
+                --surface: #16161c;
+                --bg: #0f0f12;
+                --border: rgba(255, 255, 255, 0.08);
+                --border-hover: rgba(255, 255, 255, 0.14);
+                --text: #e8e8f0;
+                --muted: #9898b0;
+                --hint: #7d7d96;
+                --danger: #ff5f6d;
+                --success: #34c77a;
+                --success-bg: rgba(52, 199, 122, 0.14);
+                --danger-bg: rgba(255, 95, 109, 0.14);
             --radius-sm: 6px;
             --radius: 10px;
             --radius-lg: 16px;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, .06), 0 1px 2px rgba(0, 0, 0, .04);
-            --shadow: 0 4px 16px rgba(0, 0, 0, .07);
+                --shadow-sm: 0 1px 3px rgba(0, 0, 0, .18), 0 1px 2px rgba(0, 0, 0, .14);
+                --shadow: 0 18px 60px rgba(0, 0, 0, .25);
             --nav-h: 60px;
         }
         
@@ -67,7 +68,6 @@
         }
         
         .brand {
-            font-family: 'Syne', sans-serif;
             font-weight: 800;
             font-size: 1.2rem;
             color: #fff;
@@ -80,12 +80,12 @@
         }
         
         .brand i {
-            color: #818cf8;
+            color: var(--accent2);
             font-size: .95rem;
         }
         
         .brand span {
-            color: #818cf8;
+            color: var(--accent2);
         }
         
         .nav-links {
@@ -109,7 +109,7 @@
         }
         
         .nav-links a:hover {
-            background: rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .06);
             color: #fff;
         }
         
@@ -165,7 +165,6 @@
         }
         
         .page-header-left h1 {
-            font-family: 'Syne', sans-serif;
             font-size: 1.55rem;
             font-weight: 700;
             letter-spacing: -.02em;
@@ -541,7 +540,6 @@
             display: flex;
             align-items: center;
             gap: .5rem;
-            font-family: 'Syne', sans-serif;
             font-weight: 700;
             font-size: .95rem;
             color: var(--text);
@@ -593,7 +591,8 @@
         <div class="card">
 
             <!-- Flash messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
             <div class="alerts">
                 {% for category, message in messages %}
                 <div class="alert alert-{{ 'error' if category == 'error' else 'success' }}">
@@ -602,7 +601,8 @@
                 </div>
                 {% endfor %}
             </div>
-            {% endif %} {% endwith %}
+            {% endif %}
+            {% endwith %}
 
             <form method="POST" action="{{ url_for('auth.edit_profile') }}">
 
@@ -614,14 +614,12 @@
                         <div class="form-group">
                             <label for="full_name">Full Name <span class="required">*</span></label>
                             <div class="input-wrap">
-                                <i class="fas fa-user icon"></i>
                                 <input type="text" id="full_name" name="full_name" value="{{ profile.full_name if profile else '' }}" placeholder="Jane Doe" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="phone">Phone</label>
                             <div class="input-wrap">
-                                <i class="fas fa-phone icon"></i>
                                 <input type="tel" id="phone" name="phone" value="{{ profile.phone if profile else '' }}" placeholder="+1 (555) 000-0000">
                             </div>
                         </div>
@@ -631,7 +629,6 @@
                         <div class="form-group">
                             <label>Email</label>
                             <div class="input-wrap">
-                                <i class="fas fa-envelope icon"></i>
                                 <input type="email" value="{{ session.email }}" disabled>
                             </div>
                             <span class="field-hint">Email cannot be changed.</span>
@@ -639,7 +636,6 @@
                         <div class="form-group">
                             <label for="address">Address</label>
                             <div class="input-wrap">
-                                <i class="fas fa-map-marker-alt icon"></i>
                                 <input type="text" id="address" name="address" value="{{ profile.address if profile else '' }}" placeholder="City, Country">
                             </div>
                         </div>
@@ -655,14 +651,12 @@
                         <div class="form-group">
                             <label for="linkedin">LinkedIn</label>
                             <div class="input-wrap">
-                                <i class="fab fa-linkedin icon"></i>
                                 <input type="url" id="linkedin" name="linkedin" value="{{ profile.linkedin if profile else '' }}" placeholder="https://linkedin.com/in/yourprofile">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="github">GitHub</label>
                             <div class="input-wrap">
-                                <i class="fab fa-github icon"></i>
                                 <input type="url" id="github" name="github" value="{{ profile.github if profile else '' }}" placeholder="https://github.com/yourusername">
                             </div>
                         </div>

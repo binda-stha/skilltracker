@@ -1,124 +1,148 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Skill Logs – SkillTracker Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin_style.css') }}"
+    />
     <style>
-         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f4;
-            --text-primary: #1a1a18;
-            --text-secondary: #6b6b67;
-            --border-t: rgba(0, 0, 0, 0.08);
-        }
-        
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            font-weight: 500;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        th {
-            background: var(--bg-secondary);
-            padding: 12px;
-            text-align: left;
-            font-weight: 500;
-            border-bottom: 1px solid var(--border-t);
-        }
-        
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border-t);
-        }
-        
-        tr:last-child td {
-            border-bottom: none;
-        }
-        
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 8px 16px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-        
-        .back-link:hover {
-            background: #e8e8e5;
-        }
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f4;
+        --text-primary: #1a1a18;
+        --text-secondary: #6b6b67;
+        --border-t: rgba(0, 0, 0, 0.08);
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        font-weight: 500;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      th {
+        background: var(--bg-secondary);
+        padding: 12px;
+        text-align: left;
+        font-weight: 500;
+        border-bottom: 1px solid var(--border-t);
+      }
+
+      td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border-t);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        padding: 8px 16px;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background 0.2s;
+      }
+
+      .back-link:hover {
+        background: #e8e8e5;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <a href="{{ url_for('auth.admin_dashboard') }}" class="back-link">← Back to Dashboard</a>
+      <a href="{{ url_for('auth.admin_dashboard') }}" class="back-link"
+        >← Back to Dashboard</a
+      >
 
-        <div class="header">
-            <h1>Skill Logs</h1>
-            <p style="color: var(--text-secondary); margin-top: 5px;">Total log entries: <strong>{{ log_count }}</strong></p>
-        </div>
+      <div class="header">
+        <h1>Skill Logs</h1>
+        <p style="color: var(--text-secondary); margin-top: 5px">
+          Total log entries: <strong>{{ log_count }}</strong>
+        </p>
+      </div>
 
-        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
-        <div style="padding: 12px; margin-bottom: 16px; background: {% if category == 'error' %}#fdecea{% else %}#e6f4ec{% endif %}; border: 1px solid {% if category == 'error' %}#fca5a5{% else %}#86efac{% endif %}; border-radius: 6px; color: {% if category == 'error' %}#991b1b{% else %}#166534{% endif %};">
-            {{ message }}
-        </div>
-        {% endfor %} {% endif %} {% endwith %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div
+        class="status-alert {% if category == 'error' %}error{% else %}success{% endif %}"
+      >
+        {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
 
-        <table>
-            <thead>
-                <tr>
-                    <th>User</th>
-                    <th>Skill</th>
-                    <th>Hours</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if logs %} {% for log in logs %}
-                <tr>
-                    <td>{{ log.email }}</td>
-                    <td>{{ log.skill_name }}</td>
-                    <td><strong>{{ log.hours_spent }}h</strong></td>
-                    <td>{{ log.log_date.strftime('%Y-%m-%d') if log.log_date else 'N/A' }}</td>
-                </tr>
-                {% endfor %} {% else %}
-                <tr>
-                    <td colspan="4" style="text-align: center; color: var(--text-secondary);">No logs found</td>
-                </tr>
-                {% endif %}
-            </tbody>
-        </table>
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Skill</th>
+            <th>Hours</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if logs %}
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.email }}</td>
+            <td>{{ log.skill_name }}</td>
+            <td><strong>{{ log.hours_spent }}h</strong></td>
+            <td>
+              {{ log.log_date.strftime('%Y-%m-%d') if log.log_date else 'N/A' }}
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td
+              colspan="4"
+              style="text-align: center; color: var(--text-secondary)"
+            >
+              No logs found
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
     </div>
-</body>
-
+  </body>
 </html>

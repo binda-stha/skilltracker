@@ -1,0 +1,181 @@
+:root {
+  --bg-primary: #16161c !important;
+  --bg-secondary: #1e1e28 !important;
+  --bg-tertiary: #0f0f12 !important;
+  --bg-info: #26263a !important;
+  --bg-success: #133427 !important;
+  --bg-warning: #3f2d11 !important;
+  --bg-danger: #3d1c24 !important;
+  --text-primary: #e8e8f0 !important;
+  --text-secondary: #b6b6cc !important;
+  --text-tertiary: #8d8da6 !important;
+  --text-info: #a593ff !important;
+  --text-success: #34c77a !important;
+  --text-warning: #f5a623 !important;
+  --text-danger: #ff5f6d !important;
+  --border-t: rgba(255, 255, 255, 0.08) !important;
+  --border-s: rgba(255, 255, 255, 0.14) !important;
+  --border-info: rgba(165, 147, 255, 0.45) !important;
+  --border-success: rgba(52, 199, 122, 0.45) !important;
+  --border-warning: rgba(245, 166, 35, 0.45) !important;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
+
+body {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+table,
+.settings-section,
+.stat-card,
+.sc,
+.shell .sidebar,
+.topbar {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary);
+}
+
+th,
+.s-item:hover,
+.back-link,
+.tb-btn:hover,
+.nav-link:hover {
+  background: var(--bg-secondary) !important;
+}
+
+td,
+th,
+.setting-item,
+.sidebar,
+.topbar,
+table {
+  border-color: var(--border-t) !important;
+}
+
+.back-link,
+.tb-btn,
+.s-item,
+.nav-link {
+  color: var(--text-secondary) !important;
+}
+
+.back-link:hover,
+.tb-btn:hover,
+.s-item:hover,
+.nav-link:hover {
+  color: var(--text-primary) !important;
+}
+
+.status-alert {
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.status-alert.error {
+  background: rgba(255, 95, 109, 0.15);
+  border-color: rgba(255, 95, 109, 0.45);
+  color: var(--text-danger);
+}
+
+.status-alert.success {
+  background: rgba(52, 199, 122, 0.15);
+  border-color: rgba(52, 199, 122, 0.45);
+  color: var(--text-success);
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.role-badge.admin {
+  background: rgba(165, 147, 255, 0.2);
+  color: var(--text-info);
+}
+
+/* Admin dark mode override for tables and content cards */
+body {
+  background: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.container {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-t) !important;
+  border-radius: var(--radius-lg) !important;
+  overflow: hidden !important;
+}
+
+th,
+td {
+  padding: 14px 16px !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-t) !important;
+}
+
+th {
+  background: var(--bg-secondary) !important;
+}
+
+td {
+  background: transparent !important;
+}
+
+tr:last-child td {
+  border-bottom: none !important;
+}
+
+.back-link {
+  background: var(--bg-secondary) !important;
+  color: var(--text-secondary) !important;
+  border-radius: 8px !important;
+  padding: 10px 16px !important;
+}
+
+.back-link:hover {
+  background: var(--bg-info) !important;
+  color: var(--text-primary) !important;
+}
+
+.progress-bar {
+  width: 100% !important;
+  height: 8px !important;
+  background: var(--bg-secondary) !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+}
+
+.progress-fill {
+  height: 100% !important;
+  background: var(--text-success) !important;
+}
+
+.priority-high {
+  color: #ffb3b8 !important;
+  background: rgba(255, 95, 109, 0.18) !important;
+}
+
+.priority-medium {
+  color: #ffd379 !important;
+  background: rgba(245, 166, 35, 0.18) !important;
+}
+
+.priority-low {
+  color: #8cc5ff !important;
+  background: rgba(124, 147, 255, 0.18) !important;
+}

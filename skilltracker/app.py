@@ -97,7 +97,6 @@ if __name__ == "__main__":
     app_host = os.environ.get('APP_HOST', 'localhost')
     app_port = int(os.environ.get('APP_PORT', '5000'))
     debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
-    app.run(host=app_host, port=app_port, debug=debug_mode)
     app.logger.info(f'Starting SkillTracker Application...')
     app.logger.info(f'Listening on http://{app_host}:{app_port}')
     app.logger.info(f'Debug mode: {debug_mode}')
@@ -107,5 +106,5 @@ if __name__ == "__main__":
     print(f"📍 Access at: http://{app_host}:{app_port}")
     print(f"🐛 Debug Mode: {debug_mode}")
     print("=" * 60)
-    
+
     app.run(debug=debug_mode, host=app_host, port=app_port)

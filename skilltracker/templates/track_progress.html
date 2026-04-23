@@ -1,194 +1,908 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Track Progress - SkillTracker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+    <style>
+      :root {
+        --bg: #0b0c10;
+        --bg-card: #13151c;
+        --bg-elevated: #1a1d27;
+        --bg-input: #1f2231;
+        --border: rgba(255, 255, 255, 0.07);
+        --border-hover: rgba(255, 255, 255, 0.14);
+        --accent: #7c6af7;
+        --accent-soft: rgba(124, 106, 247, 0.12);
+        --accent-glow: rgba(124, 106, 247, 0.3);
+        --text: #e8e9f0;
+        --text-muted: #6b6f85;
+        --text-dim: #4a4e64;
+        --success: #34c98f;
+        --success-soft: rgba(52, 201, 143, 0.1);
+        --warning: #f5a623;
+        --warning-soft: rgba(245, 166, 35, 0.1);
+        --danger: #e25858;
+        --font-display: "Bricolage Grotesque", sans-serif;
+        --font-serif: "Instrument Serif", serif;
+        --radius: 14px;
+        --radius-sm: 8px;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+      }
 
-<body>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font-display);
+        font-size: 15px;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      /* Subtle noise texture overlay */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .container-main {
+        position: relative;
+        z-index: 1;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2.5rem 1.5rem 4rem;
+      }
+
+      /* ─── Page Header ─── */
+      .page-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.25rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background: transparent;
+        border: 0.5px solid var(--border-hover);
+        border-radius: var(--radius-sm);
+        color: var(--text-muted);
+        font-family: var(--font-display);
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.18s ease;
+        white-space: nowrap;
+        margin-top: 6px;
+      }
+      .back-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--text);
+        line-height: 1.1;
+      }
+
+      .page-title span {
+        font-family: var(--font-serif);
+        font-style: italic;
+        color: var(--accent);
+      }
+
+      .page-subtitle {
+        font-size: 14px;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      /* ─── Flash Messages ─── */
+      .messages-container {
+        margin-bottom: 1.5rem;
+      }
+
+      .alert {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+      .alert-success {
+        background: var(--success-soft);
+        border: 0.5px solid var(--success);
+        color: var(--success);
+      }
+      .alert-danger {
+        background: rgba(226, 88, 88, 0.1);
+        border: 0.5px solid var(--danger);
+        color: var(--danger);
+      }
+
+      .btn-close {
+        background: transparent;
+        border: none;
+        color: inherit;
+        cursor: pointer;
+        font-size: 16px;
+        opacity: 0.6;
+        padding: 0;
+      }
+      .btn-close:hover {
+        opacity: 1;
+      }
+
+      /* ─── Stats Grid ─── */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 2rem;
+      }
+
+      .stats-card {
+        background: var(--bg-card);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.25rem 1rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.2s ease;
+      }
+      .stats-card:hover {
+        border-color: var(--border-hover);
+      }
+
+      .stats-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--accent),
+          transparent
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .stats-card:hover::before {
+        opacity: 1;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        color: var(--text);
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+      }
+
+      /* ─── Main Grid ─── */
+      .progress-grid {
+        display: grid;
+        grid-template-columns: 1fr 360px;
+        gap: 1.25rem;
+        align-items: start;
+      }
+
+      /* ─── Section Panels ─── */
+      .progress-section,
+      .activity-card {
+        background: var(--bg-card);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      .activity-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+
+      .section-header,
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.1rem 1.25rem;
+        border-bottom: 0.5px solid var(--border);
+      }
+
+      .section-title,
+      .card-title {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .section-title i,
+      .card-title i {
+        font-size: 12px;
+        color: var(--accent);
+      }
+
+      /* ─── Skill Cards ─── */
+      .skills-list {
+        padding: 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .skill-progress-card {
+        background: var(--bg-elevated);
+        border: 0.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 1rem 1.1rem;
+        transition: border-color 0.18s ease;
+      }
+      .skill-progress-card:hover {
+        border-color: var(--border-hover);
+      }
+
+      .skill-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 4px;
+      }
+
+      .skill-name {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+        letter-spacing: -0.01em;
+      }
+
+      .skill-progress-text {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .skill-description {
+        font-size: 12px;
+        color: var(--text-dim);
+        margin-bottom: 10px;
+      }
+
+      /* Progress Bar */
+      .progress-bar-container {
+        margin-bottom: 10px;
+      }
+
+      .progress-bar-bg {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent) 0%, #a48af7 100%);
+        border-radius: 99px;
+        transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        position: relative;
+      }
+      .progress-bar-fill::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: -2px;
+        width: 8px;
+        height: 8px;
+        background: #a48af7;
+        border-radius: 50%;
+        box-shadow: 0 0 6px rgba(164, 138, 247, 0.8);
+      }
+
+      /* Slider */
+      .progress-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .progress-slider {
+        flex: 1;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 99px;
+        outline: none;
+        cursor: pointer;
+      }
+      .progress-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        border: 2px solid var(--bg-elevated);
+        box-shadow: 0 0 0 2px var(--accent-glow);
+        transition: box-shadow 0.15s;
+      }
+      .progress-slider::-webkit-slider-thumb:hover {
+        box-shadow: 0 0 0 4px var(--accent-glow);
+      }
+      .progress-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--accent);
+        cursor: pointer;
+        border: 2px solid var(--bg-elevated);
+      }
+
+      .progress-value {
+        font-size: 12px;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .progress-value span {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .completed-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--success);
+        background: var(--success-soft);
+        padding: 3px 10px;
+        border-radius: 99px;
+        border: 0.5px solid rgba(52, 201, 143, 0.25);
+      }
+
+      /* ─── Empty States ─── */
+      .empty-state {
+        padding: 3rem 1.5rem;
+        text-align: center;
+      }
+      .empty-icon {
+        width: 56px;
+        height: 56px;
+        background: var(--accent-soft);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+      }
+      .empty-icon i {
+        font-size: 22px;
+        color: var(--accent);
+      }
+      .empty-state h4 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 6px;
+      }
+      .empty-state p {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 1.25rem;
+      }
+
+      .empty-state-sm {
+        padding: 1.75rem 1.25rem;
+        text-align: center;
+      }
+      .empty-state-sm i {
+        font-size: 20px;
+        color: var(--text-dim);
+        margin-bottom: 8px;
+        display: block;
+      }
+      .empty-state-sm p {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      /* ─── Buttons ─── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-display);
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.16s ease;
+        border: 0.5px solid transparent;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .btn-primary:hover {
+        background: #6b59e8;
+      }
+
+      .btn-outline {
+        background: transparent;
+        border-color: var(--border-hover);
+        color: var(--text-muted);
+      }
+      .btn-outline:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .btn-sm {
+        padding: 5px 11px;
+        font-size: 12px;
+      }
+
+      .btn-link {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent);
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.15s;
+      }
+      .btn-link:hover {
+        opacity: 1;
+      }
+
+      /* ─── Logs ─── */
+      .logs-list {
+        padding: 0.5rem 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .log-entry {
+        display: flex;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 0.5px solid var(--border);
+      }
+      .log-entry:last-child {
+        border-bottom: none;
+      }
+
+      .log-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--bg-input);
+        border: 0.5px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .log-icon i {
+        font-size: 10px;
+        color: var(--accent);
+      }
+
+      .log-skill {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .log-meta {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 1px;
+      }
+      .log-notes {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 2px;
+        font-style: italic;
+      }
+
+      .card-footer {
+        padding: 0.75rem 1.25rem;
+        border-top: 0.5px solid var(--border);
+      }
+
+      /* ─── Chart ─── */
+      .chart-container {
+        padding: 1.25rem;
+        height: 200px;
+        position: relative;
+      }
+
+      .empty-chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        gap: 8px;
+        color: var(--text-dim);
+        font-size: 13px;
+      }
+      .empty-chart i {
+        font-size: 24px;
+      }
+
+      /* ─── Responsive ─── */
+      @media (max-width: 900px) {
+        .progress-grid {
+          grid-template-columns: 1fr;
+        }
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (max-width: 520px) {
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .page-title {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
     <div class="container-main track-progress-page">
-
+      <!-- Page Header -->
+      <div class="page-header">
+        <a href="{{ url_for('auth.user_dashboard') }}" class="back-btn">
+          <i class="fas fa-arrow-left" style="font-size: 11px"></i> Dashboard
+        </a>
         <div>
-            <div class="page-header">
-                <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-outline-secondary back-btn">← Dashboard</a>
-                <h1 class="page-title">Progress Tracking</h1>
-            </div>
-            <p class="page-subtitle">Monitor and update your skill progress.</p>
+          <h1 class="page-title">Progress <span>Tracking</span></h1>
+          <p class="page-subtitle">Monitor and update your skill progress.</p>
+        </div>
+      </div>
 
-            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>
-            </div>
-            {% endfor %} {% endif %} {% endwith %}
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="messages-container">
+        {% for category, message in messages %}
+        <div
+          class="alert alert-{{ 'danger' if category == 'error' else 'success' }}"
+          role="alert"
+        >
+          <span>{{ message }}</span>
+          <button
+            type="button"
+            class="btn-close"
+            onclick="this.parentElement.style.display = 'none'"
+          >
+            ✕
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
 
-            <!-- Statistics Cards -->
-            <div class="stats-grid">
-                <div class="stats-card text-center">
-                    <div class="stat-number">{{ total_skills }}</div>
-                    <div class="stat-label">Total Skills</div>
-                </div>
-                <div class="stats-card text-center">
-                    <div class="stat-number">{{ beginner_skills }}</div>
-                    <div class="stat-label">Beginner (0-30%)</div>
-                </div>
-                <div class="stats-card text-center">
-                    <div class="stat-number">{{ intermediate_skills }}</div>
-                    <div class="stat-label">Intermediate (30-70%)</div>
-                </div>
-                <div class="stats-card text-center">
-                    <div class="stat-number">{{ advanced_skills }}</div>
-                    <div class="stat-label">Advanced (70%+)</div>
-                </div>
-            </div>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stats-card">
+          <div class="stat-number">{{ total_skills }}</div>
+          <div class="stat-label">Total Skills</div>
+        </div>
+        <div class="stats-card">
+          <div class="stat-number">{{ beginner_skills }}</div>
+          <div class="stat-label">Beginner (0–30%)</div>
+        </div>
+        <div class="stats-card">
+          <div class="stat-number">{{ intermediate_skills }}</div>
+          <div class="stat-label">Intermediate (30–70%)</div>
+        </div>
+        <div class="stats-card">
+          <div class="stat-number">{{ advanced_skills }}</div>
+          <div class="stat-label">Advanced (70%+)</div>
+        </div>
+      </div>
 
-            <!-- Skills Progress Summary -->
+      <!-- Main Content Grid -->
+      <div class="progress-grid">
+        <!-- Skills Progress -->
+        <div class="progress-section">
+          <div class="section-header">
+            <h3 class="section-title">
+              <i class="fas fa-chart-line"></i> Skills Progress
+            </h3>
             {% if skills %}
-            <div class="container-main">
-                <h3 class="section-heading">Your Skills Progress</h3>
-                {% for skill in skills %}
-                <div class="progress-card">
-                    <div class="progress-card-header">
-                        <div class="skill-info">
-                            <h5>{{ skill.skill_name }}</h5>
-                            <p class="skill-description">{{ skill.description or 'No description' }}</p>
-                        </div>
-                        <div class="progress-wrapper">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: {{ skill.current_progress }}%;">
-                                    {{ skill.current_progress }}%
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="progress-control">
-                        {% if skill.current_progress >= 100 %}
-                        <span class="badge-completed">Completed</span> {% else %}
-                        <input type="range" id="progress{{ skill.skill_id }}" class="progress-slider" min="0" max="100" value="{{ skill.current_progress }}" onchange="updateProgress({{ skill.skill_id }})">
-                        <p class="progress-value">Current: <strong id="progressValue{{ skill.skill_id }}">{{ skill.current_progress }}%</strong></p> {% endif %}
-                    </div>
+            <a
+              href="{{ url_for('auth.add_skill') }}"
+              class="btn btn-outline btn-sm"
+              >+ Add Skill</a
+            >
+            {% endif %}
+          </div>
+
+          {% if skills %}
+          <div class="skills-list">
+            {% for skill in skills %}
+            <div class="skill-progress-card">
+              <div class="skill-header">
+                <div class="skill-name">{{ skill.skill_name }}</div>
+                <div class="skill-progress-text">
+                  {{ skill.current_progress }}%
                 </div>
-                {% endfor %}
+              </div>
+              <div class="skill-description">
+                {{ skill.description or 'No description' }}
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-bg">
+                  <div
+                    class="progress-bar-fill"
+                    style="width: {{ skill.current_progress }}%;"
+                  ></div>
+                </div>
+              </div>
+              {% if skill.current_progress < 100 %}
+              <div class="progress-controls">
+                <input
+                  type="range"
+                  id="progress{{ skill.skill_id }}"
+                  class="progress-slider"
+                  min="0"
+                  max="100"
+                  value="{{ skill.current_progress }}"
+                  step="1"
+                  oninput="previewProgress({{ skill.skill_id }}, this.value)"
+                  onchange="updateProgress({{ skill.skill_id }})"
+                />
+                <div class="progress-value">
+                  <span id="progressValue{{ skill.skill_id }}"
+                    >{{ skill.current_progress }}%</span
+                  >
+                </div>
+              </div>
+              {% else %}
+              <div>
+                <span class="completed-badge"
+                  ><i class="fas fa-check-circle"></i> Completed</span
+                >
+              </div>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <div class="empty-icon"><i class="fas fa-chart-line"></i></div>
+            <h4>No skills tracked yet</h4>
+            <p>Start building your skills by adding your first one.</p>
+            <a href="{{ url_for('auth.add_skill') }}" class="btn btn-primary"
+              >Add Your First Skill</a
+            >
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Right Column -->
+        <div class="activity-section">
+          <!-- Recent Logs -->
+          <div class="activity-card">
+            <div class="card-header">
+              <h4 class="card-title">
+                <i class="fas fa-history"></i> Recent Activity
+              </h4>
+              <a href="{{ url_for('auth.view_logs') }}" class="btn-link"
+                >View all →</a
+              >
+            </div>
+            {% if recent_logs %}
+            <div class="logs-list">
+              {% for log in recent_logs %}
+              <div class="log-entry">
+                <div class="log-icon"><i class="fas fa-clock"></i></div>
+                <div class="log-content">
+                  <div class="log-skill">{{ log.skill_name }}</div>
+                  <div class="log-meta">
+                    {{ log.hours_spent }}h logged &middot; {{
+                    log.log_date.strftime('%b %d') }}
+                  </div>
+                  {% if log.notes %}
+                  <div class="log-notes">{{ log.notes }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="card-footer">
+              <a
+                href="{{ url_for('auth.add_log') }}"
+                class="btn btn-primary btn-sm"
+                >+ Log Hours</a
+              >
             </div>
             {% else %}
-            <div class="stats-card text-center">
-                <h5>No skills tracked yet!</h5>
-                <p class="text-muted">Go to your dashboard and add your first skill.</p>
-                <a href="{{ url_for('auth.user_dashboard') }}" class="btn">Add Skill</a>
+            <div class="empty-state-sm">
+              <i class="fas fa-history"></i>
+              <p>No learning logs yet</p>
+              <a href="{{ url_for('auth.add_log') }}" class="btn-link"
+                >Add your first log →</a
+              >
             </div>
             {% endif %}
-        </div>
+          </div>
 
-        <div class="container-main">
-            <div class="card">
-                <div class="card-title"><i class="fas fa-chart-bar"></i> Skill Hours</div>
-                <div class="chart-container">
-                    <canvas id="hoursBySkillChart"></canvas>
-                </div>
+          <!-- Hours Chart -->
+          <div class="activity-card">
+            <div class="card-header">
+              <h4 class="card-title">
+                <i class="fas fa-chart-bar"></i> Hours by Skill
+              </h4>
             </div>
+            <div class="chart-container">
+              <canvas id="hoursBySkillChart"></canvas>
+            </div>
+          </div>
         </div>
-
-        <script>
-            function updateValue(skillId) {
-                const value = document.getElementById('progress' + skillId).value;
-                document.getElementById('progressValue' + skillId).textContent = value + '%';
-                document.getElementById('updateBtn' + skillId).href = "/update-progress/" + skillId + "/" + value;
-            }
-
-            function updateProgress(skillId) {
-                const value = document.getElementById('progress' + skillId).value;
-                document.getElementById('progressValue' + skillId).textContent = value + '%';
-
-                fetch(`/update-progress/${skillId}/${value}`, {
-                        method: 'GET',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Update the progress bar
-                            const progressCard = document.getElementById('progress' + skillId).closest('.progress-card');
-                            const progressFill = progressCard.querySelector('.progress-fill');
-                            progressFill.style.width = value + '%';
-                            progressFill.textContent = value + '%';
-
-                            // Show success message
-                            showMessage('Progress updated successfully!', 'success');
-                        } else {
-                            showMessage(data.message || 'Failed to update progress.', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showMessage('Error updating progress.', 'error');
-                    });
-            }
-
-            function showMessage(message, type) {
-                const alertDiv = document.createElement('div');
-                alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
-                alertDiv.innerHTML = `${message} <button type="button" class="btn-close" onclick="this.parentElement.style.display='none'"></button>`;
-                const container = document.querySelector('.container-main');
-                container.insertBefore(alertDiv, container.firstChild);
-                setTimeout(() => alertDiv.remove(), 3000);
-            }
-
-            const hoursBySkillData = {{ hours_by_skill | tojson }};
-            if (hoursBySkillData && hoursBySkillData.length > 0) {
-                const chartCtx = document.getElementById('hoursBySkillChart').getContext('2d');
-                new Chart(chartCtx, {
-                    type: 'bar',
-                    data: {
-                        labels: hoursBySkillData.map(item => item.skill_name),
-                        datasets: [{
-                            label: 'Hours',
-                            data: hoursBySkillData.map(item => item.hours),
-                            backgroundColor: 'rgba(52, 152, 219, 0.6)',
-                            borderColor: 'rgba(52, 152, 219, 1)',
-                            borderWidth: 1,
-                            borderRadius: 6,
-                            borderSkipped: false
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Hours by Skill (Last 14 Days)'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Hours'
-                                }
-                            }
-                        }
-                    }
-                });
-            } else {
-                const chartCard = document.getElementById('hoursBySkillChart').closest('.card');
-                if (chartCard) {
-                    chartCard.innerHTML = '<div class="empty-analytics"><p class="text-muted">No learning logs found yet.</p></div>';
-                }
-            }
-        </script>
+      </div>
     </div>
-</body>
 
+    <script>
+      function previewProgress(skillId, value) {
+        document.getElementById('progressValue' + skillId).textContent = value + '%';
+        const card = document.getElementById('progress' + skillId).closest('.skill-progress-card');
+        card.querySelector('.progress-bar-fill').style.width = value + '%';
+        card.querySelector('.skill-progress-text').textContent = value + '%';
+      }
+
+      function updateProgress(skillId) {
+        const value = document.getElementById('progress' + skillId).value;
+
+        fetch(`/update-progress/${skillId}/${value}`, {
+          method: 'GET',
+          headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+          showMessage(
+            data.success ? 'Progress updated!' : (data.message || 'Failed to update.'),
+            data.success ? 'success' : 'error'
+          );
+        })
+        .catch(() => showMessage('Error updating progress.', 'error'));
+      }
+
+      function showMessage(message, type) {
+        const el = document.createElement('div');
+        el.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+        el.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:999;max-width:320px;animation:slideUp 0.2s ease;';
+        el.innerHTML = `<span>${message}</span><button class="btn-close" onclick="this.parentElement.remove()">✕</button>`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+      }
+
+      const style = document.createElement('style');
+      style.textContent = `@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`;
+      document.head.appendChild(style);
+
+      // Chart
+      const hoursBySkillData = {{ hours_by_skill | tojson }};
+      if (hoursBySkillData && hoursBySkillData.length > 0) {
+        const ctx = document.getElementById('hoursBySkillChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: hoursBySkillData.map(i => i.skill_name),
+            datasets: [{
+              label: 'Hours',
+              data: hoursBySkillData.map(i => i.hours),
+              backgroundColor: 'rgba(124,106,247,0.25)',
+              borderColor: 'rgba(124,106,247,0.9)',
+              borderWidth: 1.5,
+              borderRadius: 6,
+              borderSkipped: false,
+              hoverBackgroundColor: 'rgba(124,106,247,0.45)',
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: {
+              backgroundColor: '#1a1d27',
+              borderColor: 'rgba(124,106,247,0.4)',
+              borderWidth: 1,
+              titleColor: '#e8e9f0',
+              bodyColor: '#6b6f85',
+              cornerRadius: 8,
+              padding: 10,
+            }},
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(255,255,255,0.04)' },
+                border: { color: 'transparent' },
+                ticks: { color: '#4a4e64', font: { size: 11 } }
+              },
+              x: {
+                grid: { display: false },
+                border: { color: 'transparent' },
+                ticks: { color: '#4a4e64', maxRotation: 40, font: { size: 11 } }
+              }
+            }
+          }
+        });
+      } else {
+        document.querySelector('.chart-container').innerHTML =
+          '<div class="empty-chart"><i class="fas fa-chart-bar"></i><p>No data available</p></div>';
+      }
+    </script>
+  </body>
 </html>

@@ -1,318 +1,553 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SkillTracker Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
-</head>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
 
-<body>
+  <body>
     <aside class="sidebar" id="sidebar">
-        <div class="sidebar-logo">
-            <div class="logo-mark">S</div>
-            <span class="logo-name">SkillTracker</span>
+      <div class="sidebar-logo">
+        <div class="logo-mark">S</div>
+        <span class="logo-name">SkillTracker</span>
+      </div>
+      <div class="nav-group">
+        <div class="nav-label">Main</div>
+        <a class="nav-item active" href="{{ url_for('auth.user_dashboard') }}"
+          ><span class="nav-icon">⊞</span> Dashboard</a
+        >
+        <a class="nav-item" href="{{ url_for('auth.add_skill') }}"
+          ><span class="nav-icon">◈</span> Add Skill</a
+        >
+        <a class="nav-item" href="{{ url_for('auth.view_logs') }}"
+          ><span class="nav-icon">◎</span> Logs</a
+        >
+        <a class="nav-item" href="{{ url_for('auth.track_progress') }}"
+          ><span class="nav-icon">↗</span> Progress</a
+        >
+      </div>
+      <div class="nav-group" style="margin-top: 8px">
+        <div class="nav-label">Account</div>
+        <a class="nav-item" href="{{ url_for('auth.edit_profile') }}"
+          ><span class="nav-icon">⚙</span> Profile</a
+        >
+        <a class="nav-item" href="{{ url_for('auth.logout') }}"
+          ><span class="nav-icon">⟲</span> Logout</a
+        >
+      </div>
+      <div class="sidebar-bottom">
+        <div class="user-row">
+          <div class="avatar">{{ user_initials }}</div>
+          <div>
+            <div class="user-name">{{ full_name }}</div>
+            <div class="user-role">SkillTracker User</div>
+          </div>
         </div>
-        <div class="nav-group">
-            <div class="nav-label">Main</div>
-            <a class="nav-item active" href="{{ url_for('auth.user_dashboard') }}"><span class="nav-icon">⊞</span> Dashboard</a>
-            <a class="nav-item" href="{{ url_for('auth.add_skill') }}"><span class="nav-icon">◈</span> Add Skill</a>
-            <a class="nav-item" href="{{ url_for('auth.view_logs') }}"><span class="nav-icon">◎</span> Logs</a>
-            <a class="nav-item" href="{{ url_for('auth.track_progress') }}"><span class="nav-icon">↗</span> Progress</a>
-        </div>
-        <div class="nav-group" style="margin-top:8px;">
-            <div class="nav-label">Account</div>
-            <a class="nav-item" href="{{ url_for('auth.edit_profile') }}"><span class="nav-icon">⚙</span> Profile</a>
-            <a class="nav-item" href="{{ url_for('auth.logout') }}"><span class="nav-icon">⟲</span> Logout</a>
-        </div>
-        <div class="sidebar-bottom">
-            <div class="user-row">
-                <div class="avatar">{{ user_initials }}</div>
-                <div>
-                    <div class="user-name">{{ full_name }}</div>
-                    <div class="user-role">SkillTracker User</div>
-                </div>
-            </div>
-        </div>
+      </div>
     </aside>
 
     <div class="main">
-        <header class="topbar">
-            <div class="topbar-left">
-                <button class="icon-btn hamburger-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
-                <div>
-                    <div class="page-title">Dashboard</div>
-                    <div class="page-date">{{ today }} · <span id="lastUpdatedText">Last updated just now</span></div>
-                </div>
+      <header class="topbar">
+        <div class="topbar-left">
+          <button
+            class="icon-btn hamburger-btn"
+            onclick="
+              document.getElementById('sidebar').classList.toggle('open')
+            "
+          >
+            ☰
+          </button>
+          <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-date">
+              {{ today }} ·
+              <span id="lastUpdatedText">Last updated just now</span>
             </div>
-            <div class="topbar-right">
-                <button class="icon-btn">🔔</button>
-                <button class="icon-btn">⚙</button>
-                <div class="avatar">{{ user_initials }}</div>
-            </div>
-        </header>
-
-        <div class="page">
-            <div class="hero">
-                <div>
-                    <div class="hero-welcome">Welcome back,</div>
-                    <div class="hero-name">{{ full_name }}</div>
-                    <div id="heroFocus" class="hero-focus">
-                        <div class="hero-dot"></div>
-                        {% if recommended_skill %} Focus: {{ recommended_skill.skill_name }} · Priority: {{ recommended_skill.priority|capitalize }} · Score: {{ recommended_skill.recommendation_score }} {% else %} No recommendation yet. Add a skill or log progress. {% endif
-                        %}
-                    </div>
-                </div>
-                <div class="ring-wrap">
-                    <svg viewBox="0 0 72 72" width="72" height="72">
-                        <circle class="ring-bg" cx="36" cy="36" r="30" />
-                        <circle id="ringFill" class="ring-fill" cx="36" cy="36" r="30" stroke-dasharray="188" stroke-dashoffset="{{ 188 - (average_progress|float * 1.88) }}" />
-                    </svg>
-                    <div id="ringText" class="ring-text">{{ average_progress }}%</div>
-                </div>
-                <div class="hero-stats">
-                    <div class="stat-card">
-                        <div id="avgProgressValue" class="stat-num">{{ average_progress }}%</div>
-                        <div class="stat-lbl">Avg progress</div>
-                    </div>
-                    <div class="stat-card">
-                        <div id="skillsTrackedValue" class="stat-num">{{ total_skills }}</div>
-                        <div class="stat-lbl">Skills tracked</div>
-                    </div>
-                    <div class="stat-card" style="color: var(--green);">
-                        <div id="completedSkillsValue" class="stat-num">{{ completed_skills }}</div>
-                        <div class="stat-lbl">Completed</div>
-                    </div>
-                </div>
-                <div class="hero-actions">
-                    <a href="{{ url_for('auth.add_skill') }}" class="btn btn-primary">+ Add Skill</a>
-                    <a href="{{ url_for('auth.add_log') }}" class="btn btn-ghost">Log Hours</a>
-                    <button id="refreshDashboardBtn" type="button" class="btn btn-secondary">Refresh</button>
-                </div>
-            </div>
-
-            <div class="dash-grid">
-                <div>
-                    <div class="sec-header"><span class="sec-title">Skill progress</span><a class="sec-link" href="#skill-mgmt">View all →</a></div>
-                    <div id="skillProgressCards">
-                        {% if skills %} {% for skill in skills %} {% set progress = skill.current_progress or 0 %}
-                        <div class="skill-card">
-                            <div class="skill-card-header">
-                                <div>
-                                    <div class="skill-card-name">{{ skill.skill_name }}</div>
-                                    <div class="skill-card-meta">
-                                        {% if skill.target_date %}Due {{ skill.target_date }}{% else %}No deadline{% endif %}
-                                    </div>
-                                </div>
-                                <span class="badge {% if progress >= 90 %}badge-green{% elif progress >= 70 %}badge-purple{% elif progress >= 40 %}badge-amber{% else %}badge-red{% endif %}">
-                                            {% if progress >= 90 %}Expert{% elif progress >= 70 %}Advanced{% elif progress >= 40 %}Intermediate{% else %}Beginner{% endif %}
-                                        </span>
-                            </div>
-                            <div class="prog-row">
-                                <div class="prog-bg">
-                                    <div class="prog-fill" style="width: {{ progress }}%; background: {% if progress >= 90 %}var(--green){% elif progress >= 70 %}var(--accent){% elif progress >= 40 %}var(--amber){% else %}var(--red){% endif %};"></div>
-                                </div>
-                                <span class="prog-pct">{{ progress }}%</span>
-                            </div>
-                            <div class="skill-footer">
-                                <span class="skill-meta-item">{{ skill.target_hours or 0 }}h target</span>
-                                <span class="skill-meta-item">{{ skill.description or 'No description' }}</span>
-                            </div>
-                        </div>
-                        {% endfor %} {% else %}
-                        <div class="skill-card" style="text-align:center; padding: 32px 20px;">
-                            <div class="skill-card-name">No skills yet</div>
-                            <div class="skill-card-meta">Add your first skill to start tracking progress.</div>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div style="margin-top: 20px;">
-                        <div class="sec-header"><span class="sec-title">Recent activity</span></div>
-                        <div id="activityFeed" class="activity-feed">
-                            {% if recent_logs %} {% for log in recent_logs[:4] %}
-                            <div class="activity-item">
-                                <div class="act-dot" style="background: var(--accent);"></div>
-                                <div class="act-body">
-                                    <div class="act-text">Logged <strong>{{ log.hours_spent }}h</strong> for <strong>{{ log.skill_name }}</strong></div>
-                                    <div class="act-time">{{ log.log_date.strftime('%b %d, %Y') if log.log_date else 'N/A' }}</div>
-                                </div>
-                            </div>
-                            {% endfor %} {% else %}
-                            <div class="activity-item">
-                                <div class="act-dot" style="background: var(--accent);"></div>
-                                <div class="act-body">
-                                    <div class="act-text">No recent logs yet. Start by logging your first session.</div>
-                                    <div class="act-time">Today</div>
-                                </div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <div class="widget">
-                        <div class="sec-header"><span class="sec-title">Weekly growth</span></div>
-                        <div id="weeklyBars" class="chart-bars">
-                            {% if weekly_data %} {% for entry in weekly_data %}
-                            <div class="bar" style="height: {{ (entry.daily_hours / max_weekly * 70 + 20) if max_weekly else 20 }}%; background: var(--accent);" title="{{ entry.date.strftime('%a') }}: {{ entry.daily_hours }}h"></div>
-                            {% endfor %} {% else %}
-                            <div style="height:76px; display:flex; align-items:center; justify-content:center; color: var(--text2);">No weekly data yet</div>
-                            {% endif %}
-                        </div>
-                        <div id="weeklyLabels" class="chart-xlabels">
-                            {% for entry in weekly_data %}<span class="chart-xlbl">{{ entry.date.strftime('%a')[0] }}</span>{% endfor %}
-                        </div>
-                    </div>
-                    <div class="widget" id="goalTracker">
-                        <div class="sec-header"><span class="sec-title">Goal tracker</span></div>
-                        {% if skills %} {% for skill in skills[:3] %} {% set progress = skill.current_progress or 0 %}
-                        <div class="goal-item">
-                            <div class="goal-row"><span class="goal-name">{{ skill.skill_name }}</span><span class="goal-pct">{{ progress }}%</span></div>
-                            <div class="prog-bg">
-                                <div class="prog-fill" style="width: {{ progress }}%; background: {% if progress >= 90 %}var(--green){% elif progress >= 70 %}var(--accent){% elif progress >= 40 %}var(--amber){% else %}var(--red){% endif %};"></div>
-                            </div>
-                        </div>
-                        {% endfor %} {% else %}
-                        <div class="notif-text">Add skills to see goal progress here.</div>
-                        {% endif %}
-                    </div>
-                    <div class="widget">
-                        <div class="sec-header"><span class="sec-title">Reminders</span></div>
-                        <div class="notif-item">
-                            <div class="notif-icon" style="background: rgba(124,106,247,0.14); color: var(--accent2);">!</div>
-                            <div>
-                                <div id="recommendationText" class="notif-text">
-                                    {% if recommended_skill %} Recommended focus: <strong>{{ recommended_skill.skill_name }}</strong> ({{ recommended_skill.priority|capitalize }}). {% else %} No recommendation yet, add more progress to create one. {%
-                                    endif %}
-                                </div>
-                                <div class="notif-time">Recommendation</div>
-                            </div>
-                        </div>
-                        <div class="notif-item">
-                            <div class="notif-icon" style="background: rgba(52,199,122,0.14); color: var(--green);">✓</div>
-                            <div>
-                                <div id="mostPracticedText" class="notif-text">Most practiced skill: <strong>{{ most_practiced_skill }}</strong>.</div>
-                                <div class="notif-time">Analytics</div>
-                            </div>
-                        </div>
-                        <div class="notif-item">
-                            <div class="notif-icon" style="background: rgba(245,166,35,0.14); color: var(--amber);">↑</div>
-                            <div>
-                                <div id="progressStatusText" class="notif-text">{{ total_skills - completed_skills }} skills are still in progress.</div>
-                                <div class="notif-time">Status</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="skill-mgmt" class="mgmt-section">
-                <div class="sec-header"><span class="sec-title">Manage Skills</span><a class="btn btn-primary" href="{{ url_for('auth.add_skill') }}">+ Add Skill</a></div>
-                <div class="search-row">
-                    <div class="search-wrap"><span class="search-icon">🔍</span><input id="searchBox" class="search-box" type="text" placeholder="Search skills..." /></div>
-                    <div class="filter-wrap">
-                        <select id="priorityFilter" class="filter-box">
-                            <option value="">All priorities</option>
-                            <option value="High">High</option>
-                            <option value="Medium">Medium</option>
-                            <option value="Low">Low</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Skill name</th>
-                                <th>Priority</th>
-                                <th>Progress</th>
-                                <th>Target</th>
-                                <th>Deadline</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="skillsTableBody">
-                            {% if skills %} {% for skill in skills %} {% set progress = skill.current_progress or 0 %}
-                            <tr data-priority="{{ skill.priority or 'Medium' }}">
-                                <td class="tbl-name">{{ skill.skill_name }}</td>
-                                <td>{{ skill.priority or 'Medium' }}</td>
-                                <td>
-                                    <div style="display:flex;align-items:center;gap:8px;">
-                                        <div class="prog-bg" style="width:88px;">
-                                            <div class="prog-fill" style="width: {{ progress }}%; background: {% if progress >= 90 %}var(--green){% elif progress >= 70 %}var(--accent){% elif progress >= 40 %}var(--amber){% else %}var(--red){% endif %};"></div>
-                                        </div>
-                                        <span style="font-size:11px;color:var(--text2);">{{ progress }}%</span>
-                                    </div>
-                                </td>
-                                <td>{{ skill.target_hours or 0 }}h</td>
-                                <td>{% if skill.target_date %}{{ skill.target_date }}{% else %}-{% endif %}</td>
-                                <td><span class="status-dot {% if progress >= 90 %}status-done{% elif progress >= 40 %}status-active{% else %}status-paused{% endif %}">{% if progress >= 90 %}Done{% elif progress >= 40 %}In progress{% else %}Starting{% endif %}</span></td>
-                                <td>
-                                    <div class="tbl-actions">
-                                        <a class="tbl-btn edit" href="{{ url_for('auth.edit_skill', skill_id=skill.skill_id) }}">Edit</a>
-                                        <a class="tbl-btn del" href="{{ url_for('auth.delete_skill', skill_id=skill.skill_id) }}" onclick="return confirm('Delete {{ skill.skill_name }}? This cannot be undone.')">Delete</a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %} {% else %}
-                            <tr>
-                                <td colspan="7" style="text-align:center; padding:24px 16px; color: var(--text2);">No skills tracked yet. Add your first skill to get started.</td>
-                            </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+          </div>
         </div>
+        <div class="topbar-right">
+          <div class="avatar">{{ user_initials }}</div>
+        </div>
+      </header>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %}
+
+      <div class="page">
+        <div class="hero">
+          <div>
+            <div class="hero-welcome">Welcome back,</div>
+            <div class="hero-name">{{ full_name }}</div>
+            <div id="heroFocus" class="hero-focus">
+              <div class="hero-dot"></div>
+              {% if recommended_skill %} Focus: {{ recommended_skill.skill_name
+              }} · Priority: {{ recommended_skill.priority|capitalize }} ·
+              Score: {{ recommended_skill.recommendation_score }} {% else %} No
+              recommendation yet. Add a skill or log progress. {% endif %}
+            </div>
+          </div>
+          <div class="ring-wrap">
+            <svg viewBox="0 0 72 72" width="72" height="72">
+              <circle class="ring-bg" cx="36" cy="36" r="30" />
+              <circle
+                id="ringFill"
+                class="ring-fill"
+                cx="36"
+                cy="36"
+                r="30"
+                stroke-dasharray="188"
+                stroke-dashoffset="{{ 188 - (average_progress|float * 1.88) }}"
+              />
+            </svg>
+            <div id="ringText" class="ring-text">{{ average_progress }}%</div>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-card">
+              <div id="avgProgressValue" class="stat-num">
+                {{ average_progress }}%
+              </div>
+              <div class="stat-lbl">Avg progress</div>
+            </div>
+            <div class="stat-card">
+              <div id="skillsTrackedValue" class="stat-num">
+                {{ total_skills }}
+              </div>
+              <div class="stat-lbl">Skills tracked</div>
+            </div>
+            <div class="stat-card" style="color: var(--green)">
+              <div id="completedSkillsValue" class="stat-num">
+                {{ completed_skills }}
+              </div>
+              <div class="stat-lbl">Completed</div>
+            </div>
+          </div>
+          <div class="hero-actions">
+            <a href="{{ url_for('auth.add_skill') }}" class="btn btn-primary"
+              >+ Add Skill</a
+            >
+            <a href="{{ url_for('auth.add_log') }}" class="btn btn-ghost"
+              >Log Hours</a
+            >
+            <button
+              id="refreshDashboardBtn"
+              type="button"
+              class="btn btn-secondary"
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div>
+            <div class="sec-header">
+              <span class="sec-title">Skill progress</span
+              ><a class="sec-link" href="#skill-mgmt">View all →</a>
+            </div>
+            <div id="skillProgressCards">
+              {% if skills %} {% for skill in skills %} {% set progress =
+              skill.current_progress or 0 %}
+              <div class="skill-card">
+                <div class="skill-card-header">
+                  <div>
+                    <div class="skill-card-name">{{ skill.skill_name }}</div>
+                    <div class="skill-card-meta">
+                      {% if skill.target_date %}Due {{ skill.target_date }}{%
+                      else %}No deadline{% endif %}
+                    </div>
+                  </div>
+                  <span
+                    class="badge {% if progress >= 90 %}badge-green{% elif progress >= 70 %}badge-purple{% elif progress >= 40 %}badge-amber{% else %}badge-red{% endif %}"
+                  >
+                    {% if progress >= 90 %}Expert{% elif progress >= 70
+                    %}Advanced{% elif progress >= 40 %}Intermediate{% else
+                    %}Beginner{% endif %}
+                  </span>
+                </div>
+                <div class="prog-row">
+                  <div class="prog-bg">
+                    <div
+                      class="prog-fill"
+                      style="width: {{ progress }}%; background: {% if progress >= 90 %}var(--green){% elif progress >= 70 %}var(--accent){% elif progress >= 40 %}var(--amber){% else %}var(--red){% endif %};"
+                    ></div>
+                  </div>
+                  <span class="prog-pct">{{ progress }}%</span>
+                </div>
+                <div class="skill-footer">
+                  <span class="skill-meta-item"
+                    >{{ skill.target_hours or 0 }}h target</span
+                  >
+                  <span class="skill-meta-item"
+                    >{{ skill.description or 'No description' }}</span
+                  >
+                </div>
+              </div>
+              {% endfor %} {% else %}
+              <div
+                class="skill-card"
+                style="text-align: center; padding: 32px 20px"
+              >
+                <div class="skill-card-name">No skills yet</div>
+                <div class="skill-card-meta">
+                  Add your first skill to start tracking progress.
+                </div>
+              </div>
+              {% endif %}
+            </div>
+
+            <div style="margin-top: 20px">
+              <div class="sec-header">
+                <span class="sec-title">Recent activity</span>
+              </div>
+              <div id="activityFeed" class="activity-feed">
+                {% if recent_logs %} {% for log in recent_logs[:4] %}
+                <div class="activity-item">
+                  <div class="act-dot" style="background: var(--accent)"></div>
+                  <div class="act-body">
+                    <div class="act-text">
+                      Logged <strong>{{ log.hours_spent }}h</strong> for
+                      <strong>{{ log.skill_name }}</strong>
+                    </div>
+                    <div class="act-time">{{ log.log_date or 'N/A' }}</div>
+                  </div>
+                </div>
+                {% endfor %} {% else %}
+                <div class="activity-item">
+                  <div class="act-dot" style="background: var(--accent)"></div>
+                  <div class="act-body">
+                    <div class="act-text">
+                      No recent logs yet. Start by logging your first session.
+                    </div>
+                    <div class="act-time">Today</div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="widget">
+              <div class="sec-header">
+                <span class="sec-title">Weekly growth</span>
+              </div>
+              <div id="weeklyBars" class="chart-bars">
+                {% if weekly_data %} {% for entry in weekly_data %}
+                <div
+                  class="bar"
+                  style="height: {{ ((entry.daily_hours|float) / (max_weekly|float) * 70 + 20) if max_weekly else 20 }}%; background: var(--accent);"
+                  title="{{ entry.weekday or entry.date }}: {{ entry.daily_hours }}h"
+                ></div>
+                {% endfor %} {% else %}
+                <div
+                  style="
+                    height: 76px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: var(--text2);
+                  "
+                >
+                  No weekly data yet
+                </div>
+                {% endif %}
+              </div>
+              <div id="weeklyLabels" class="chart-xlabels">
+                {% for entry in weekly_data %}<span class="chart-xlbl"
+                  >{{ (entry.weekday or entry.date)[0] }}</span
+                >{% endfor %}
+              </div>
+            </div>
+            <div class="widget" id="goalTracker">
+              <div class="sec-header">
+                <span class="sec-title">Goal tracker</span>
+              </div>
+              {% if skills %} {% for skill in skills[:3] %} {% set progress =
+              skill.current_progress or 0 %}
+              <div class="goal-item">
+                <div class="goal-row">
+                  <span class="goal-name">{{ skill.skill_name }}</span
+                  ><span class="goal-pct">{{ progress }}%</span>
+                </div>
+                <div class="prog-bg">
+                  <div
+                    class="prog-fill"
+                    style="width: {{ progress }}%; background: {% if progress >= 90 %}var(--green){% elif progress >= 70 %}var(--accent){% elif progress >= 40 %}var(--amber){% else %}var(--red){% endif %};"
+                  ></div>
+                </div>
+              </div>
+              {% endfor %} {% else %}
+              <div class="notif-text">
+                Add skills to see goal progress here.
+              </div>
+              {% endif %}
+            </div>
+            <div class="widget">
+              <div class="sec-header">
+                <span class="sec-title">Reminders</span>
+              </div>
+              <div class="notif-item">
+                <div
+                  class="notif-icon"
+                  style="
+                    background: rgba(124, 106, 247, 0.14);
+                    color: var(--accent2);
+                  "
+                >
+                  !
+                </div>
+                <div>
+                  <div id="recommendationText" class="notif-text">
+                    {% if recommended_skill %} Recommended focus:
+                    <strong>{{ recommended_skill.skill_name }}</strong> ({{
+                    recommended_skill.priority|capitalize }}). {% else %} No
+                    recommendation yet, add more progress to create one. {%
+                    endif %}
+                  </div>
+                  <div class="notif-time">Recommendation</div>
+                </div>
+              </div>
+              <div class="notif-item">
+                <div
+                  class="notif-icon"
+                  style="
+                    background: rgba(52, 199, 122, 0.14);
+                    color: var(--green);
+                  "
+                >
+                  ✓
+                </div>
+                <div>
+                  <div id="mostPracticedText" class="notif-text">
+                    Most practiced skill:
+                    <strong>{{ most_practiced_skill }}</strong>.
+                  </div>
+                  <div class="notif-time">Analytics</div>
+                </div>
+              </div>
+              <div class="notif-item">
+                <div
+                  class="notif-icon"
+                  style="
+                    background: rgba(245, 166, 35, 0.14);
+                    color: var(--amber);
+                  "
+                >
+                  ↑
+                </div>
+                <div>
+                  <div id="progressStatusText" class="notif-text">
+                    {{ total_skills - completed_skills }} skills are still in
+                    progress.
+                  </div>
+                  <div class="notif-time">Status</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="skill-mgmt" class="mgmt-section">
+          <div class="sec-header">
+            <span class="sec-title">Manage Skills</span
+            ><a class="btn btn-primary" href="{{ url_for('auth.add_skill') }}"
+              >+ Add Skill</a
+            >
+          </div>
+          <div class="search-row">
+            <div class="search-wrap">
+              <span class="search-icon">🔍</span
+              ><input
+                id="searchBox"
+                class="search-box"
+                type="text"
+                placeholder="Search skills..."
+              />
+            </div>
+            <div class="filter-wrap">
+              <select id="priorityFilter" class="filter-box">
+                <option value="">All priorities</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Skill name</th>
+                  <th>Priority</th>
+                  <th>Progress</th>
+                  <th>Target</th>
+                  <th>Deadline</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="skillsTableBody">
+                {% if skills %} {% for skill in skills %} {% set progress =
+                skill.current_progress or 0 %}
+                <tr data-priority="{{ skill.priority or 'Medium' }}">
+                  <td class="tbl-name">{{ skill.skill_name }}</td>
+                  <td>{{ skill.priority or 'Medium' }}</td>
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <div class="prog-bg" style="width: 88px">
+                        <div
+                          class="prog-fill"
+                          style="width: {{ progress }}%; background: {% if progress >= 90 %}var(--green){% elif progress >= 70 %}var(--accent){% elif progress >= 40 %}var(--amber){% else %}var(--red){% endif %};"
+                        ></div>
+                      </div>
+                      <span style="font-size: 11px; color: var(--text2)"
+                        >{{ progress }}%</span
+                      >
+                    </div>
+                  </td>
+                  <td>{{ skill.target_hours or 0 }}h</td>
+                  <td>
+                    {% if skill.target_date %}{{ skill.target_date }}{% else
+                    %}-{% endif %}
+                  </td>
+                  <td>
+                    <span
+                      class="status-dot {% if progress >= 90 %}status-done{% elif progress >= 40 %}status-active{% else %}status-paused{% endif %}"
+                      >{% if progress >= 90 %}Done{% elif progress >= 40 %}In
+                      progress{% else %}Starting{% endif %}</span
+                    >
+                  </td>
+                  <td>
+                    <div class="tbl-actions">
+                      <a
+                        class="tbl-btn edit"
+                        href="{{ url_for('auth.edit_skill', skill_id=skill.skill_id) }}"
+                        >Edit</a
+                      >
+                      <form
+                        method="POST"
+                        action="{{ url_for('auth.delete_skill', skill_id=skill.skill_id) }}"
+                        style="display: inline"
+                      >
+                        <input
+                          type="hidden"
+                          name="csrf_token"
+                          value="{{ csrf_token }}"
+                        />
+                        <button
+                          type="submit"
+                          class="tbl-btn del"
+                          onclick="return confirm('Delete {{ skill.skill_name }}? This cannot be undone.');"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %} {% else %}
+                <tr>
+                  <td
+                    colspan="7"
+                    style="
+                      text-align: center;
+                      padding: 24px 16px;
+                      color: var(--text2);
+                    "
+                  >
+                    No skills tracked yet. Add your first skill to get started.
+                  </td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        const searchBox = document.getElementById('searchBox');
-        const priorityFilter = document.getElementById('priorityFilter');
-        const refreshBtn = document.getElementById('refreshDashboardBtn');
-        const lastUpdatedText = document.getElementById('lastUpdatedText');
-        const heroFocus = document.getElementById('heroFocus');
-        const ringFill = document.getElementById('ringFill');
-        const ringText = document.getElementById('ringText');
-        const avgProgressValue = document.getElementById('avgProgressValue');
-        const skillsTrackedValue = document.getElementById('skillsTrackedValue');
-        const completedSkillsValue = document.getElementById('completedSkillsValue');
-        const recommendationText = document.getElementById('recommendationText');
-        const mostPracticedText = document.getElementById('mostPracticedText');
-        const progressStatusText = document.getElementById('progressStatusText');
-        const activityFeed = document.getElementById('activityFeed');
-        const weeklyBars = document.getElementById('weeklyBars');
-        const weeklyLabels = document.getElementById('weeklyLabels');
-        const goalTracker = document.getElementById('goalTracker');
-        const skillProgressCards = document.getElementById('skillProgressCards');
-        const skillsTableBody = document.getElementById('skillsTableBody');
+      const searchBox = document.getElementById("searchBox");
+      const priorityFilter = document.getElementById("priorityFilter");
+      const refreshBtn = document.getElementById("refreshDashboardBtn");
+      const lastUpdatedText = document.getElementById("lastUpdatedText");
+      const heroFocus = document.getElementById("heroFocus");
+      const ringFill = document.getElementById("ringFill");
+      const ringText = document.getElementById("ringText");
+      const avgProgressValue = document.getElementById("avgProgressValue");
+      const skillsTrackedValue = document.getElementById("skillsTrackedValue");
+      const completedSkillsValue = document.getElementById(
+        "completedSkillsValue",
+      );
+      const recommendationText = document.getElementById("recommendationText");
+      const mostPracticedText = document.getElementById("mostPracticedText");
+      const progressStatusText = document.getElementById("progressStatusText");
+      const activityFeed = document.getElementById("activityFeed");
+      const weeklyBars = document.getElementById("weeklyBars");
+      const weeklyLabels = document.getElementById("weeklyLabels");
+      const goalTracker = document.getElementById("goalTracker");
+      const skillProgressCards = document.getElementById("skillProgressCards");
+      const skillsTableBody = document.getElementById("skillsTableBody");
+      const csrfToken = "{{ csrf_token }}";
 
-        function escapeText(text) {
-            return String(text || '').replace(/[&<>"]/g, char => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;'
-            })[char]);
-        }
+      function escapeText(text) {
+        return String(text || "").replace(
+          /[&<>"]/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+            })[char],
+        );
+      }
 
-        function getProgressColor(progress) {
-            if (progress >= 90) return 'var(--green)';
-            if (progress >= 70) return 'var(--accent)';
-            if (progress >= 40) return 'var(--amber)';
-            return 'var(--red)';
-        }
+      function getProgressColor(progress) {
+        if (progress >= 90) return "var(--green)";
+        if (progress >= 70) return "var(--accent)";
+        if (progress >= 40) return "var(--amber)";
+        return "var(--red)";
+      }
 
-        function buildSkillCard(skill) {
-            const dueText = skill.target_date ? `Due ${skill.target_date}` : 'No deadline';
-            const proficiency = skill.current_progress >= 90 ? 'Expert' : skill.current_progress >= 70 ? 'Advanced' : skill.current_progress >= 40 ? 'Intermediate' : 'Beginner';
-            const badgeClass = skill.current_progress >= 90 ? 'badge-green' : skill.current_progress >= 70 ? 'badge-purple' : skill.current_progress >= 40 ? 'badge-amber' : 'badge-red';
-            return `
+      function buildSkillCard(skill) {
+        const dueText = skill.target_date
+          ? `Due ${skill.target_date}`
+          : "No deadline";
+        const proficiency =
+          skill.current_progress >= 90
+            ? "Expert"
+            : skill.current_progress >= 70
+              ? "Advanced"
+              : skill.current_progress >= 40
+                ? "Intermediate"
+                : "Beginner";
+        const badgeClass =
+          skill.current_progress >= 90
+            ? "badge-green"
+            : skill.current_progress >= 70
+              ? "badge-purple"
+              : skill.current_progress >= 40
+                ? "badge-amber"
+                : "badge-red";
+        return `
                 <div class="skill-card">
                     <div class="skill-card-header">
                         <div>
@@ -333,13 +568,23 @@
                     </div>
                 </div>
             `;
-        }
+      }
 
-        function buildSkillRow(skill) {
-            const dueText = skill.target_date ? skill.target_date : '-';
-            const statusLabel = skill.current_progress >= 90 ? 'Done' : skill.current_progress >= 40 ? 'In progress' : 'Starting';
-            const statusClass = skill.current_progress >= 90 ? 'status-done' : skill.current_progress >= 40 ? 'status-active' : 'status-paused';
-            return `
+      function buildSkillRow(skill) {
+        const dueText = skill.target_date ? skill.target_date : "-";
+        const statusLabel =
+          skill.current_progress >= 90
+            ? "Done"
+            : skill.current_progress >= 40
+              ? "In progress"
+              : "Starting";
+        const statusClass =
+          skill.current_progress >= 90
+            ? "status-done"
+            : skill.current_progress >= 40
+              ? "status-active"
+              : "status-paused";
+        return `
                 <tr data-priority="${escapeText(skill.priority)}">
                     <td class="tbl-name">${escapeText(skill.skill_name)}</td>
                     <td>${escapeText(skill.priority)}</td>
@@ -356,16 +601,19 @@
                     <td>
                         <div class="tbl-actions">
                             <a class="tbl-btn edit" href="/edit-skill/${skill.skill_id}">Edit</a>
-                            <a class="tbl-btn del" href="/delete-skill/${skill.skill_id}" onclick="return confirm('Delete ${escapeText(skill.skill_name)}? This cannot be undone.')">Delete</a>
+                            <form method="POST" action="/delete-skill/${skill.skill_id}" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="${escapeText(csrfToken)}">
+                                <button type="submit" class="tbl-btn del" onclick="return confirm('Delete ${escapeText(skill.skill_name)}? This cannot be undone.')">Delete</button>
+                            </form>
                         </div>
                     </td>
                 </tr>
             `;
-        }
+      }
 
-        function buildRecentActivity(logs) {
-            if (!logs || !logs.length) {
-                return `
+      function buildRecentActivity(logs) {
+        if (!logs || !logs.length) {
+          return `
                     <div class="activity-item">
                         <div class="act-dot" style="background: var(--accent);"></div>
                         <div class="act-body">
@@ -374,8 +622,11 @@
                         </div>
                     </div>
                 `;
-            }
-            return logs.slice(0, 4).map(log => `
+        }
+        return logs
+          .slice(0, 4)
+          .map(
+            (log) => `
                 <div class="activity-item">
                     <div class="act-dot" style="background: var(--accent);"></div>
                     <div class="act-body">
@@ -383,132 +634,158 @@
                         <div class="act-time">${escapeText(log.log_date)}</div>
                     </div>
                 </div>
-            `).join('');
-        }
+            `,
+          )
+          .join("");
+      }
 
-        function buildWeeklyChart(data, maxWeekly) {
-            if (!data || !data.length) {
-                weeklyBars.innerHTML = '<div style="height:76px; display:flex; align-items:center; justify-content:center; color: var(--text2);">No weekly data yet</div>';
-                weeklyLabels.innerHTML = '';
-                return;
-            }
-            weeklyBars.innerHTML = data.map(entry => {
-                const height = maxWeekly ? (entry.daily_hours / maxWeekly * 70 + 20) : 20;
-                const label = new Date(entry.date).toLocaleDateString('en-US', {
-                    weekday: 'short'
-                }).charAt(0);
-                return `<div class="bar" style="height: ${height}%; background: var(--accent);" title="${escapeText(label)}: ${entry.daily_hours}h"></div>`;
-            }).join('');
-            weeklyLabels.innerHTML = data.map(entry =>
-                `<span class="chart-xlbl">${escapeText(new Date(entry.date).toLocaleDateString('en-US', { weekday: 'short' }).charAt(0))}</span>`
-            ).join('');
+      function buildWeeklyChart(data, maxWeekly) {
+        if (!data || !data.length) {
+          weeklyBars.innerHTML =
+            '<div style="height:76px; display:flex; align-items:center; justify-content:center; color: var(--text2);">No weekly data yet</div>';
+          weeklyLabels.innerHTML = "";
+          return;
         }
+        weeklyBars.innerHTML = data
+          .map((entry) => {
+            const height = maxWeekly
+              ? (entry.daily_hours / maxWeekly) * 70 + 20
+              : 20;
+            const label = new Date(entry.date)
+              .toLocaleDateString("en-US", {
+                weekday: "short",
+              })
+              .charAt(0);
+            return `<div class="bar" style="height: ${height}%; background: var(--accent);" title="${escapeText(label)}: ${entry.daily_hours}h"></div>`;
+          })
+          .join("");
+        weeklyLabels.innerHTML = data
+          .map(
+            (entry) =>
+              `<span class="chart-xlbl">${escapeText(new Date(entry.date).toLocaleDateString("en-US", { weekday: "short" }).charAt(0))}</span>`,
+          )
+          .join("");
+      }
 
-        function buildGoals(skills) {
-            if (!skills || !skills.length) {
-                goalTracker.innerHTML = '<div class="notif-text">Add skills to see goal progress here.</div>';
-                return;
-            }
-            goalTracker.innerHTML = `
+      function buildGoals(skills) {
+        if (!skills || !skills.length) {
+          goalTracker.innerHTML =
+            '<div class="notif-text">Add skills to see goal progress here.</div>';
+          return;
+        }
+        goalTracker.innerHTML = `
                 <div class="sec-header"><span class="sec-title">Goal tracker</span></div>
-                ${skills.slice(0, 3).map(skill => `
+                ${skills
+                  .slice(0, 3)
+                  .map(
+                    (skill) => `
                     <div class="goal-item">
                         <div class="goal-row"><span class="goal-name">${escapeText(skill.skill_name)}</span><span class="goal-pct">${skill.current_progress}%</span></div>
                         <div class="prog-bg">
                             <div class="prog-fill" style="width: ${skill.current_progress}%; background: ${getProgressColor(skill.current_progress)};"></div>
                         </div>
                     </div>
-                `).join('')}
+                `,
+                  )
+                  .join("")}
             `;
-        }
+      }
 
-        function renderSkills(skills) {
-            if (!skills || !skills.length) {
-                skillProgressCards.innerHTML = `<div class="skill-card" style="text-align:center; padding: 32px 20px;"><div class="skill-card-name">No skills yet</div><div class="skill-card-meta">Add your first skill to start tracking progress.</div></div>`;
-                skillsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px 16px; color: var(--text2);">No skills tracked yet. Add your first skill to get started.</td></tr>`;
-                return;
-            }
-            skillProgressCards.innerHTML = skills.map(buildSkillCard).join('');
-            skillsTableBody.innerHTML = skills.map(buildSkillRow).join('');
-            applyTableFilter();
+      function renderSkills(skills) {
+        if (!skills || !skills.length) {
+          skillProgressCards.innerHTML = `<div class="skill-card" style="text-align:center; padding: 32px 20px;"><div class="skill-card-name">No skills yet</div><div class="skill-card-meta">Add your first skill to start tracking progress.</div></div>`;
+          skillsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px 16px; color: var(--text2);">No skills tracked yet. Add your first skill to get started.</td></tr>`;
+          return;
         }
+        skillProgressCards.innerHTML = skills.map(buildSkillCard).join("");
+        skillsTableBody.innerHTML = skills.map(buildSkillRow).join("");
+        applyTableFilter();
+      }
 
-        function applyTableFilter() {
-            const query = searchBox.value.toLowerCase();
-            const priority = priorityFilter.value;
-            document.querySelectorAll('#skillsTableBody tr').forEach(row => {
-                const nameElement = row.querySelector('.tbl-name');
-                const nameText = nameElement ? nameElement.textContent.toLowerCase() : '';
-                const matchesText = !query || nameText.includes(query);
-                const rowPriority = row.dataset.priority || '';
-                const matchesPriority = !priority || rowPriority === priority;
-                row.style.display = matchesText && matchesPriority ? '' : 'none';
-            });
-        }
-
-        function updateDashboard(data) {
-            if (!data) return;
-            heroFocus.innerHTML = data.recommended_skill
-                ? `<div class="hero-dot"></div>Focus: ${escapeText(data.recommended_skill.skill_name)} · Priority: ${escapeText(data.recommended_skill.priority)} · Score: ${escapeText(data.recommended_skill.recommendation_score)}`
-                : `<div class="hero-dot"></div>No recommendation yet. Add a skill or log progress.`;
-            avgProgressValue.textContent = `${data.average_progress}%`;
-            skillsTrackedValue.textContent = data.total_skills;
-            completedSkillsValue.textContent = data.completed_skills;
-            ringText.textContent = `${data.average_progress}%`;
-            ringFill.setAttribute('stroke-dashoffset', `${188 - (data.average_progress * 1.88)}`);
-            recommendationText.innerHTML = data.recommended_skill
-                ? `Recommended focus: <strong>${escapeText(data.recommended_skill.skill_name)}</strong> (${escapeText(data.recommended_skill.priority)}).`
-                : 'No recommendation yet, add more progress to create one.';
-            mostPracticedText.innerHTML = `Most practiced skill: <strong>${escapeText(data.most_practiced_skill)}</strong>.`;
-            progressStatusText.textContent = `${Math.max(0, data.total_skills - data.completed_skills)} skills are still in progress.`;
-            activityFeed.innerHTML = buildRecentActivity(data.recent_logs);
-            buildWeeklyChart(data.weekly_data, data.max_weekly);
-            buildGoals(data.skills);
-            renderSkills(data.skills);
-        }
-
-        async function refreshDashboard() {
-            refreshBtn.disabled = true;
-            refreshBtn.textContent = 'Refreshing...';
-            try {
-                const response = await fetch('/user/dashboard/data');
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/login';
-                        return;
-                    }
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                const data = await response.json();
-                if (data.error) {
-                    console.error('Dashboard refresh error:', data.error);
-                    return;
-                }
-                updateDashboard(data);
-                lastUpdatedText.textContent = `Last updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-            } catch (error) {
-                console.error('Could not refresh dashboard:', error);
-            } finally {
-                refreshBtn.disabled = false;
-                refreshBtn.textContent = 'Refresh';
-            }
-        }
-
-        searchBox.addEventListener('input', applyTableFilter);
-        priorityFilter.addEventListener('change', applyTableFilter);
-        refreshBtn.addEventListener('click', refreshDashboard);
-        document.addEventListener('click', function(e) {
-            const sidebar = document.getElementById('sidebar');
-            const hamburger = document.querySelector('.hamburger-btn');
-            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !hamburger.contains(e.target)) {
-                sidebar.classList.remove('open');
-            }
+      function applyTableFilter() {
+        const query = searchBox.value.toLowerCase();
+        const priority = priorityFilter.value;
+        document.querySelectorAll("#skillsTableBody tr").forEach((row) => {
+          const nameElement = row.querySelector(".tbl-name");
+          const nameText = nameElement
+            ? nameElement.textContent.toLowerCase()
+            : "";
+          const matchesText = !query || nameText.includes(query);
+          const rowPriority = row.dataset.priority || "";
+          const matchesPriority = !priority || rowPriority === priority;
+          row.style.display = matchesText && matchesPriority ? "" : "none";
         });
+      }
 
-        if (refreshBtn) {
-            refreshDashboard();
+      function updateDashboard(data) {
+        if (!data) return;
+        heroFocus.innerHTML = data.recommended_skill
+          ? `<div class="hero-dot"></div>Focus: ${escapeText(data.recommended_skill.skill_name)} · Priority: ${escapeText(data.recommended_skill.priority)} · Score: ${escapeText(data.recommended_skill.recommendation_score)}`
+          : `<div class="hero-dot"></div>No recommendation yet. Add a skill or log progress.`;
+        avgProgressValue.textContent = `${data.average_progress}%`;
+        skillsTrackedValue.textContent = data.total_skills;
+        completedSkillsValue.textContent = data.completed_skills;
+        ringText.textContent = `${data.average_progress}%`;
+        ringFill.setAttribute(
+          "stroke-dashoffset",
+          `${188 - data.average_progress * 1.88}`,
+        );
+        recommendationText.innerHTML = data.recommended_skill
+          ? `Recommended focus: <strong>${escapeText(data.recommended_skill.skill_name)}</strong> (${escapeText(data.recommended_skill.priority)}).`
+          : "No recommendation yet, add more progress to create one.";
+        mostPracticedText.innerHTML = `Most practiced skill: <strong>${escapeText(data.most_practiced_skill)}</strong>.`;
+        progressStatusText.textContent = `${Math.max(0, data.total_skills - data.completed_skills)} skills are still in progress.`;
+        activityFeed.innerHTML = buildRecentActivity(data.recent_logs);
+        buildWeeklyChart(data.weekly_data, data.max_weekly);
+        buildGoals(data.skills);
+        renderSkills(data.skills);
+      }
+
+      async function refreshDashboard() {
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = "Refreshing...";
+        try {
+          const response = await fetch("/user/dashboard/data");
+          if (!response.ok) {
+            if (response.status === 401) {
+              window.location.href = "/login";
+              return;
+            }
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const data = await response.json();
+          if (data.error) {
+            console.error("Dashboard refresh error:", data.error);
+            return;
+          }
+          updateDashboard(data);
+          lastUpdatedText.textContent = `Last updated ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+        } catch (error) {
+          console.error("Could not refresh dashboard:", error);
+        } finally {
+          refreshBtn.disabled = false;
+          refreshBtn.textContent = "Refresh";
         }
-    </script>
-</body>
+      }
 
+      searchBox.addEventListener("input", applyTableFilter);
+      priorityFilter.addEventListener("change", applyTableFilter);
+      refreshBtn.addEventListener("click", refreshDashboard);
+      document.addEventListener("click", function (e) {
+        const sidebar = document.getElementById("sidebar");
+        const hamburger = document.querySelector(".hamburger-btn");
+        if (
+          sidebar.classList.contains("open") &&
+          !sidebar.contains(e.target) &&
+          !hamburger.contains(e.target)
+        ) {
+          sidebar.classList.remove("open");
+        }
+      });
+
+      if (refreshBtn) {
+        refreshDashboard();
+      }
+    </script>
+  </body>
 </html>

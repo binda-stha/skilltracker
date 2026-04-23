@@ -4,7 +4,7 @@ Handles: Registration, Login, Logout, Skill CRUD, Progress Tracking, CV Generati
 Security: Password hashing, session validation, input sanitization
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, make_response, current_app, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, make_response, current_app, jsonify, get_flashed_messages
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql
 from pymysql.err import InternalError
@@ -18,6 +18,21 @@ import secrets
 from skilltracker.algorithms import merge_sort_skills, get_top_skill_recommendations
 
 auth = Blueprint('auth', __name__)
+
+PUBLIC_AUTH_ENDPOINTS = {
+    'auth.login',
+    'auth.register',
+    'auth.logout'
+}
+
+ADMIN_ONLY_ENDPOINTS = {
+    'auth.admin_dashboard',
+    'auth.admin_users',
+    'auth.admin_skills',
+    'auth.admin_analytics',
+    'auth.admin_logs',
+    'auth.admin_settings'
+}
 
 
 def validate_session():
@@ -43,11 +58,40 @@ def generate_csrf_token():
 
 def validate_csrf_token(token):
     """Validate CSRF token from form submission"""
-    return token and secrets.compare_digest(token, session.get('csrf_token', ''))
+    if token and secrets.compare_digest(token, session.get('csrf_token', '')):
+        session['csrf_token'] = secrets.token_hex(32)  # Regenerate after successful validation
+        return True
+    return False
 
 @auth.context_processor
 def inject_csrf_token():
     return {'csrf_token': generate_csrf_token()}
+
+
+@auth.before_request
+def enforce_session_and_role_rules():
+    """Centralized session integrity and role enforcement for auth blueprint routes."""
+    endpoint = request.endpoint
+    if not endpoint or not endpoint.startswith('auth.'):
+        return None
+
+    if endpoint in PUBLIC_AUTH_ENDPOINTS:
+        return None
+
+    if endpoint in ADMIN_ONLY_ENDPOINTS:
+        if not validate_session() or session.get('role_ID') != 1:
+            session.clear()
+            flash("❌ Session expired. Please login again", "error")
+            return redirect(url_for('auth.login'))
+        return None
+
+    # All remaining auth blueprint routes are user-only.
+    if not validate_session() or session.get('role_ID') != 2:
+        session.clear()
+        flash("❌ Session expired. Please login again", "error")
+        return redirect(url_for('auth.login'))
+
+    return None
 
 
 def get_db_connection():
@@ -105,6 +149,19 @@ def build_user_dashboard_payload(user_id):
         return None
 
     cursor = conn.cursor()
+
+    def format_dashboard_date(value, output_format):
+        if not value:
+            return None
+        if isinstance(value, str):
+            try:
+                value = datetime.fromisoformat(value)
+            except ValueError:
+                return value
+        if hasattr(value, 'strftime'):
+            return value.strftime(output_format)
+        return str(value)
+
     try:
         cursor.execute("""
             SELECT skill_id, skill_name, description, current_progress, target_hours, priority, target_date, created_at
@@ -113,15 +170,16 @@ def build_user_dashboard_payload(user_id):
             ORDER BY created_at DESC
         """, (user_id,))
         skills = cursor.fetchall()
+        skills = merge_sort_skills(skills, key='current_progress', reverse=True)
 
         total_skills = len(skills)
         progress_values = []
         for skill in skills:
-            progress = skill['current_progress'] if skill['current_progress'] is not None else 0
+            progress = float(skill['current_progress'] or 0)
             progress_values.append(progress)
 
         total_progress = sum(progress_values)
-        average_progress = round(total_progress / total_skills, 2) if total_skills else 0
+        average_progress = float(round(total_progress / total_skills, 2)) if total_skills else 0.0
         completed_skills = sum(1 for p in progress_values if p == 100)
 
         if average_progress >= 80:
@@ -180,7 +238,7 @@ def build_user_dashboard_payload(user_id):
         profile = cursor.fetchone()
         full_name = profile['full_name'] if profile and profile['full_name'] else "User"
         user_initials = ''.join([part[0].upper() for part in full_name.split() if part])[:2] or session.get('email', 'U')[0].upper()
-        max_weekly = max((row['daily_hours'] for row in weekly_data), default=1)
+        max_weekly = float(max((float(row['daily_hours'] or 0) for row in weekly_data), default=1))
         today = datetime.now().strftime("%A, %B %d, %Y")
 
         proficiency_breakdown = {
@@ -233,7 +291,7 @@ def build_user_dashboard_payload(user_id):
                     'log_id': log['log_id'],
                     'skill_name': log['skill_name'],
                     'hours_spent': int(log['hours_spent'] or 0),
-                    'log_date': log['log_date'].strftime('%b %d, %Y') if log['log_date'] else 'N/A',
+                    'log_date': format_dashboard_date(log['log_date'], '%b %d, %Y') or 'N/A',
                     'reflection_notes': log['reflection_notes'] or ''
                 }
                 for log in recent_logs
@@ -244,7 +302,11 @@ def build_user_dashboard_payload(user_id):
                 for row in hours_by_skill
             ],
             'weekly_data': [
-                {'date': row['date'].strftime('%Y-%m-%d'), 'daily_hours': float(row['daily_hours'] or 0)}
+                {
+                    'date': format_dashboard_date(row['date'], '%Y-%m-%d') or '',
+                    'weekday': format_dashboard_date(row['date'], '%a') or '',
+                    'daily_hours': float(row['daily_hours'] or 0)
+                }
                 for row in weekly_data
             ],
             'max_weekly': max_weekly,
@@ -538,7 +600,12 @@ def register():
         if role == 'admin':
             role_ID = 1
             secret_key = request.form.get('secret_key', '')
-            if secret_key != 'admin123':
+            configured_admin_secret = os.environ.get('ADMIN_REGISTRATION_SECRET')
+            if not configured_admin_secret:
+                current_app.logger.error('Admin registration blocked: ADMIN_REGISTRATION_SECRET missing')
+                flash("Admin registration is disabled by server configuration", "error")
+                return render_template('register.html')
+            if not secrets.compare_digest(secret_key, configured_admin_secret):
                 current_app.logger.warning('Invalid admin secret key')
                 flash("Invalid admin secret key", "error")
                 return render_template('register.html')
@@ -1021,7 +1088,8 @@ def add_skill():
 @auth.route('/edit-skill/<int:skill_id>', methods=['GET', 'POST'])
 def edit_skill(skill_id):
     """Edit existing skill"""
-    if 'user_id' not in session:
+    if 'user_id' not in session or not validate_session() or session.get('role_ID') != 2:
+        session.clear()
         flash("❌ Please login first", "error")
         return redirect(url_for('auth.login'))
 
@@ -1034,41 +1102,57 @@ def edit_skill(skill_id):
     user_id = session['user_id']
 
     if request.method == 'POST':
-        csrf_token = request.form.get('csrf_token')
-        if not validate_csrf_token(csrf_token):
-            current_app.logger.warning('CSRF validation failed')
-            flash("❌ Invalid request", "error")
-            cursor.close()
-            conn.close()
-            return render_template('edit_skill.html', skill_id=skill_id)
-
-        skill_name = sanitize_input(request.form.get('skill_name', ''))
-        description = sanitize_input(request.form.get('description', ''))
-        progress = request.form.get('progress', '0')
-        target_date = request.form.get('target_date', None)
-        target_hours = request.form.get('target_hours', '0')
-        priority = request.form.get('priority', 'Medium').strip().capitalize()
-        if priority not in ['Low', 'Medium', 'High']:
-            priority = 'Medium'
-
-        proficiency_level = calculate_proficiency_level(progress)
-        if not is_valid_progress(progress):
-            flash("❌ Progress must be between 0 and 100", "error")
-            cursor.close()
-            conn.close()
-            return render_template('edit_skill.html', skill_id=skill_id)
-
         try:
-            target_hours_value = int(target_hours) if target_hours else 0
-            if target_hours_value < 0:
-                raise ValueError
-        except ValueError:
-            flash("❌ Target hours must be a non-negative integer", "error")
-            cursor.close()
-            conn.close()
-            return render_template('edit_skill.html', skill_id=skill_id)
+            csrf_token = request.form.get('csrf_token')
+            if not validate_csrf_token(csrf_token):
+                current_app.logger.warning('CSRF validation failed')
+                flash("❌ Invalid request", "error")
+                cursor.execute("SELECT * FROM skills WHERE skill_id=%s AND user_id=%s", (skill_id, user_id))
+                skill = cursor.fetchone()
+                return render_template('edit_skill.html', skill=skill)
 
-        try:
+            skill_name = sanitize_input(request.form.get('skill_name', ''))
+            description = sanitize_input(request.form.get('description', ''))
+            progress = request.form.get('progress', '0')
+            target_date = request.form.get('target_date', None)
+            target_hours = request.form.get('target_hours', '0')
+            priority = request.form.get('priority', 'Medium').strip().capitalize()
+            if priority not in ['Low', 'Medium', 'High']:
+                priority = 'Medium'
+
+            if not skill_name:
+                flash("❌ Skill name is required", "error")
+                cursor.execute("SELECT * FROM skills WHERE skill_id=%s AND user_id=%s", (skill_id, user_id))
+                skill = cursor.fetchone()
+                return render_template('edit_skill.html', skill=skill)
+
+            proficiency_level = calculate_proficiency_level(progress)
+            if not is_valid_progress(progress):
+                flash("❌ Progress must be between 0 and 100", "error")
+                cursor.execute("SELECT * FROM skills WHERE skill_id=%s AND user_id=%s", (skill_id, user_id))
+                skill = cursor.fetchone()
+                return render_template('edit_skill.html', skill=skill)
+
+            try:
+                if target_date:
+                    datetime.strptime(target_date, "%Y-%m-%d")
+            except ValueError:
+                flash("❌ Target date must be in YYYY-MM-DD format", "error")
+                cursor.execute("SELECT * FROM skills WHERE skill_id=%s AND user_id=%s", (skill_id, user_id))
+                skill = cursor.fetchone()
+                return render_template('edit_skill.html', skill=skill)
+
+            try:
+                target_hours_value = float(target_hours) if target_hours else 0.0
+                if target_hours_value < 0:
+                    raise ValueError
+                target_hours_value = int(target_hours_value)  # Convert to int after validation
+            except ValueError:
+                flash("❌ Target hours must be a non-negative number", "error")
+                cursor.execute("SELECT * FROM skills WHERE skill_id=%s AND user_id=%s", (skill_id, user_id))
+                skill = cursor.fetchone()
+                return render_template('edit_skill.html', skill=skill)
+
             cursor.execute("SELECT user_id FROM skills WHERE skill_id=%s", (skill_id,))
             skill = cursor.fetchone()
 
@@ -1086,11 +1170,29 @@ def edit_skill(skill_id):
             flash("✅ Skill updated successfully!", "success")
 
         except Exception as e:
-            flash(f"❌ Error updating skill: {str(e)}", "error")
+            current_app.logger.error(f"Edit skill exception: {e}")
+            flash("❌ An unexpected error occurred while updating the skill.", "error")
+            try:
+                cursor.execute("SELECT * FROM skills WHERE skill_id=%s AND user_id=%s", (skill_id, user_id))
+                skill = cursor.fetchone()
+            except Exception:
+                skill = None
+
+            if skill:
+                return render_template('edit_skill.html', skill=skill)
+            return redirect(url_for('auth.user_dashboard'))
 
         finally:
-            cursor.close()
-            conn.close()
+            if cursor:
+                try:
+                    cursor.close()
+                except Exception:
+                    pass
+            if conn:
+                try:
+                    conn.close()
+                except Exception:
+                    pass
 
         return redirect(url_for('auth.user_dashboard'))
 
@@ -1117,12 +1219,14 @@ def edit_skill(skill_id):
         conn.close()
 
 
-@auth.route('/delete-skill/<int:skill_id>')
+@auth.route('/delete-skill/<int:skill_id>', methods=['POST'])
 def delete_skill(skill_id):
     """Delete skill"""
-    if 'user_id' not in session:
-        flash("❌ Please login first", "error")
-        return redirect(url_for('auth.login'))
+    csrf_token = request.form.get('csrf_token')
+    if not validate_csrf_token(csrf_token):
+        current_app.logger.warning('CSRF validation failed on delete_skill')
+        flash("❌ Invalid request", "error")
+        return redirect(url_for('auth.user_dashboard'))
 
     conn = get_db_connection()
     if not conn:
@@ -1461,12 +1565,14 @@ def view_logs():
     return render_template('logs.html', logs=logs, total_hours=total_hours)
 
 
-@auth.route('/delete-log/<int:log_id>')
+@auth.route('/delete-log/<int:log_id>', methods=['POST'])
 def delete_log(log_id):
     """Delete a skill log"""
-    if 'user_id' not in session:
-        flash("❌ Please login first", "error")
-        return redirect(url_for('auth.login'))
+    csrf_token = request.form.get('csrf_token')
+    if not validate_csrf_token(csrf_token):
+        current_app.logger.warning('CSRF validation failed on delete_log')
+        flash("❌ Invalid request", "error")
+        return redirect(url_for('auth.view_logs'))
 
     user_id = session['user_id']
     conn = get_db_connection()
@@ -1623,6 +1729,12 @@ def add_education():
         return redirect(url_for('auth.login'))
 
     if request.method == 'POST':
+        csrf_token = request.form.get('csrf_token')
+        if not validate_csrf_token(csrf_token):
+            current_app.logger.warning('CSRF validation failed')
+            flash("❌ Invalid request", "error")
+            return redirect(url_for('auth.add_education'))
+
         degree = sanitize_input(request.form.get('degree', ''))
         field_of_study = sanitize_input(request.form.get('field_of_study', ''))
         institution = sanitize_input(request.form.get('institution', ''))
@@ -1799,41 +1911,49 @@ def add_certification():
     return render_template('add_certification.html')
 
 
-@auth.route('/delete-education/<int:education_id>')
+@auth.route('/delete-education/<int:education_id>', methods=['POST'])
 def delete_education(education_id):
-    if 'user_id' not in session:
-        flash("❌ Please login first", "error")
-        return redirect(url_for('auth.login'))
+    csrf_token = request.form.get('csrf_token')
+    if not validate_csrf_token(csrf_token):
+        current_app.logger.warning('CSRF validation failed on delete_education')
+        flash("❌ Invalid request", "error")
+        return redirect(url_for('auth.user_dashboard'))
     success, msg = delete_user_item('education', 'education_id', education_id, session['user_id'])
     flash("✅ Education removed" if success else f"❌ {msg}", "success" if success else "error")
     return redirect(url_for('auth.user_dashboard'))
 
 
-@auth.route('/delete-experience/<int:experience_id>')
+@auth.route('/delete-experience/<int:experience_id>', methods=['POST'])
 def delete_experience(experience_id):
-    if 'user_id' not in session:
-        flash("❌ Please login first", "error")
-        return redirect(url_for('auth.login'))
+    csrf_token = request.form.get('csrf_token')
+    if not validate_csrf_token(csrf_token):
+        current_app.logger.warning('CSRF validation failed on delete_experience')
+        flash("❌ Invalid request", "error")
+        return redirect(url_for('auth.user_dashboard'))
     success, msg = delete_user_item('experience', 'experience_id', experience_id, session['user_id'])
     flash("✅ Experience removed" if success else f"❌ {msg}", "success" if success else "error")
     return redirect(url_for('auth.user_dashboard'))
 
 
-@auth.route('/delete-project/<int:project_id>')
+@auth.route('/delete-project/<int:project_id>', methods=['POST'])
 def delete_project(project_id):
-    if 'user_id' not in session:
-        flash("❌ Please login first", "error")
-        return redirect(url_for('auth.login'))
+    csrf_token = request.form.get('csrf_token')
+    if not validate_csrf_token(csrf_token):
+        current_app.logger.warning('CSRF validation failed on delete_project')
+        flash("❌ Invalid request", "error")
+        return redirect(url_for('auth.user_dashboard'))
     success, msg = delete_user_item('projects', 'project_id', project_id, session['user_id'])
     flash("✅ Project removed" if success else f"❌ {msg}", "success" if success else "error")
     return redirect(url_for('auth.user_dashboard'))
 
 
-@auth.route('/delete-certification/<int:certification_id>')
+@auth.route('/delete-certification/<int:certification_id>', methods=['POST'])
 def delete_certification(certification_id):
-    if 'user_id' not in session:
-        flash("❌ Please login first", "error")
-        return redirect(url_for('auth.login'))
+    csrf_token = request.form.get('csrf_token')
+    if not validate_csrf_token(csrf_token):
+        current_app.logger.warning('CSRF validation failed on delete_certification')
+        flash("❌ Invalid request", "error")
+        return redirect(url_for('auth.user_dashboard'))
     success, msg = delete_user_item('certifications', 'certification_id', certification_id, session['user_id'])
     flash("✅ Certification removed" if success else f"❌ {msg}", "success" if success else "error")
     return redirect(url_for('auth.user_dashboard'))
@@ -2046,17 +2166,29 @@ def track_progress():
         """, (user_id,))
         skills = cursor.fetchall()
 
-        beginner_skills = sum(1 for s in skills if s['current_progress'] < 30)
-        intermediate_skills = sum(1 for s in skills if 30 <= s['current_progress'] < 70)
-        advanced_skills = sum(1 for s in skills if s['current_progress'] >= 70)
+        # Fetch recent logs
+        cursor.execute("""
+            SELECT l.log_id, l.skill_id, s.skill_name, l.hours_spent, l.reflection_notes, l.log_date
+            FROM skill_logs l
+            JOIN skills s ON l.skill_id = s.skill_id
+            WHERE s.user_id = %s
+            ORDER BY l.log_date DESC
+            LIMIT 10
+        """, (user_id,))
+        recent_logs = cursor.fetchall()
 
-        trends = get_progress_trends(user_id, days=14)
-        hours_by_skill = get_hours_by_skill(user_id, days=14)
+        beginner_skills = sum(1 for s in skills if (s['current_progress'] or 0) < 30)
+        intermediate_skills = sum(1 for s in skills if 30 <= (s['current_progress'] or 0) < 70)
+        advanced_skills = sum(1 for s in skills if (s['current_progress'] or 0) >= 70)
+
+        trends = {}  # get_progress_trends(user_id, days=14)
+        hours_by_skill = []  # get_hours_by_skill(user_id, days=14)
         progress_distribution = [beginner_skills, intermediate_skills, advanced_skills]
 
         return render_template(
             'track_progress.html',
             skills=skills,
+            recent_logs=recent_logs,
             beginner_skills=beginner_skills,
             intermediate_skills=intermediate_skills,
             advanced_skills=advanced_skills,
@@ -2166,9 +2298,9 @@ def generate_cv():
             SELECT skill_name, description, current_progress, COALESCE(priority, 'Medium') as priority
             FROM skills
             WHERE user_id = %s
-            ORDER BY current_progress DESC
         """, (user_id,))
         skills = cursor.fetchall()
+        skills = merge_sort_skills(skills, key='current_progress', reverse=True)
 
         cursor.execute("""
             SELECT s.skill_name, COALESCE(SUM(l.hours_spent), 0) as total_hours

@@ -5,8 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV - {{ profile.full_name if profile else user_email }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #0f0f12;
+            --bg2: #16161c;
+            --bg3: #1e1e28;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #e8e8f0;
+            --text2: #9898b0;
+            --accent: #7c6af7;
+            --accent2: #a593ff;
+            --green: #34c77a;
+            --amber: #f5a623;
+            --red: #ff5f6d;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,26 +28,26 @@
         }
         
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: #f5f5f5;
+            color: var(--text);
+            background: var(--bg);
         }
         
         .cv-container {
             max-width: 800px;
             margin: 0 auto;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            background: var(--bg2);
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.25);
             min-height: 100vh;
         }
         
         .cv-header {
-            background: white;
-            color: #333;
+            background: var(--bg2);
+            color: var(--text);
             padding: 40px 30px;
             text-align: center;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border);
         }
         
         .cv-header h1 {
@@ -44,7 +58,7 @@
         
         .cv-header .subtitle {
             font-size: 1.1rem;
-            color: #666;
+            color: var(--text2);
             margin-bottom: 20px;
         }
         
@@ -54,7 +68,7 @@
             gap: 20px;
             flex-wrap: wrap;
             font-size: 0.9rem;
-            color: #666;
+            color: var(--text2);
         }
         
         .contact-item {
@@ -65,7 +79,7 @@
         
         .cv-section {
             padding: 30px;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid var(--border);
         }
         
         .cv-section:last-child {
@@ -75,16 +89,16 @@
         .section-title {
             font-size: 1.4rem;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #333;
+            border-bottom: 2px solid var(--accent);
         }
         
         .summary-text {
             font-size: 1rem;
             line-height: 1.7;
-            color: #555;
+            color: var(--text2);
         }
         
         .stats-grid {
@@ -95,23 +109,23 @@
         }
         
         .stat-card {
-            background: white;
+            background: var(--bg3);
             padding: 20px;
-            border-radius: 0;
+            border-radius: 12px;
             text-align: center;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
         }
         
         .stat-number {
             font-size: 2rem;
             font-weight: 700;
-            color: #333;
+            color: var(--text);
             margin-bottom: 5px;
         }
         
         .stat-label {
             font-size: 0.9rem;
-            color: #666;
+            color: var(--text2);
             font-weight: 500;
         }
         
@@ -126,17 +140,18 @@
         .skill-category h4 {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
             margin-bottom: 15px;
             padding-left: 15px;
-            border-left: 3px solid #333;
+            border-left: 3px solid var(--accent);
         }
         
         .skill-item {
             margin-bottom: 15px;
             padding: 15px;
-            background: white;
-            border: 1px solid #ddd;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
         }
         
         .skill-header {
@@ -148,23 +163,23 @@
         
         .skill-name {
             font-weight: 600;
-            color: #333;
+            color: var(--text);
         }
         
         .skill-meta {
             font-size: 0.85rem;
-            color: #666;
+            color: var(--text2);
         }
         
         .skill-description {
             font-size: 0.9rem;
-            color: #555;
+            color: var(--text2);
             margin-top: 8px;
         }
         
         .progress-container {
             margin-top: 10px;
-            background: #e0e0e0;
+            background: rgba(255, 255, 255, 0.08);
             height: 6px;
             border-radius: 3px;
             overflow: hidden;
@@ -172,7 +187,7 @@
         
         .progress-fill {
             height: 100%;
-            background: #333;
+            background: var(--accent);
             border-radius: 3px;
             transition: width 0.3s ease;
         }
@@ -183,85 +198,89 @@
         .certification-item {
             margin-bottom: 20px;
             padding: 20px;
-            background: white;
-            border: 1px solid #ddd;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
         }
         
         .item-title {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
             margin-bottom: 5px;
         }
         
         .item-subtitle {
             font-size: 1rem;
-            color: #666;
+            color: var(--text2);
             margin-bottom: 5px;
         }
         
         .item-date {
             font-size: 0.85rem;
-            color: #666;
+            color: var(--text2);
             margin-bottom: 10px;
         }
         
         .item-description {
             font-size: 0.9rem;
-            color: #555;
+            color: var(--text2);
             line-height: 1.6;
         }
         
         .cv-footer {
             text-align: center;
             padding: 20px 30px;
-            background: #f5f5f5;
-            color: #666;
+            background: var(--bg3);
+            color: var(--text2);
             font-size: 0.85rem;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid var(--border);
         }
         
         .actions {
             padding: 20px 30px;
             text-align: center;
-            background: #f5f5f5;
-            border-top: 1px solid #ddd;
+            background: var(--bg3);
+            border-top: 1px solid var(--border);
         }
         
         .btn {
             display: inline-block;
             padding: 10px 20px;
-            background: #333;
+            background: var(--accent);
             color: white;
             text-decoration: none;
-            border-radius: 0;
+            border-radius: 10px;
             font-weight: 500;
             margin: 0 10px;
-            transition: background 0.3s;
-            border: 1px solid #333;
+            transition: background 0.2s, transform 0.2s;
+            border: 1px solid var(--accent);
         }
         
         .btn:hover {
-            background: #555;
-            border-color: #555;
+            background: var(--accent2);
+            border-color: var(--accent2);
+            transform: translateY(-1px);
         }
         
         .btn-secondary {
-            background: white;
-            color: #333;
-            border: 1px solid #333;
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
         }
         
         .btn-secondary:hover {
-            background: #f5f5f5;
+            background: var(--bg);
         }
         
         @media print {
             body {
                 background: white;
+                color: #333;
             }
             .cv-container {
                 box-shadow: none;
+                background: white;
             }
             .actions {
                 display: none;
@@ -297,11 +316,14 @@
             <div class="subtitle">{{ proficiency_level }} Developer</div>
             <div class="contact-info">
                 <div class="contact-item">{{ user_email }}</div>
-                {% if profile %} {% if profile.phone %}
+                {% if profile %}
+                {% if profile.phone %}
                 <div class="contact-item">{{ profile.phone }}</div>
-                {% endif %} {% if profile.linkedin %}
+                {% endif %}
+                {% if profile.linkedin %}
                 <div class="contact-item">{{ profile.linkedin }}</div>
-                {% endif %} {% endif %}
+                {% endif %}
+                {% endif %}
             </div>
         </div>
 
@@ -358,7 +380,8 @@
                     </div>
                     {% endfor %}
                 </div>
-                {% endif %} {% if intermediate_skills %}
+                {% endif %}
+                {% if intermediate_skills %}
                 <div class="skill-category">
                     <h4>Intermediate Skills</h4>
                     {% for skill in intermediate_skills %}
@@ -376,7 +399,8 @@
                     </div>
                     {% endfor %}
                 </div>
-                {% endif %} {% if beginner_skills %}
+                {% endif %}
+                {% if beginner_skills %}
                 <div class="skill-category">
                     <h4>Beginner Skills</h4>
                     {% for skill in beginner_skills %}
@@ -441,7 +465,8 @@
                 <div class="item-title">{{ project.project_name }}</div>
                 {% if project.technologies %}
                 <div class="item-subtitle">{{ project.technologies }}</div>
-                {% endif %} {% if project.description %}
+                {% endif %}
+                {% if project.description %}
                 <div class="item-description">{{ project.description }}</div>
                 {% endif %}
             </div>

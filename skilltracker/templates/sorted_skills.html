@@ -1,177 +1,296 @@
-{% extends 'base.html' %} {% block content %}
-<div class="container mt-5">
-    <!-- Header -->
-    <div class="row mb-5">
-        <div class="col-lg-8">
-            <h1 class="display-4 fw-bold">📊 Sorted Skills</h1>
-            <p class="lead text-muted">Skills ranked by progress using Merge Sort Algorithm</p>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sorted Skills - SkillTracker</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <style>
+      body {
+        background: var(--bg);
+      }
+
+      .algo-page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .algo-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .algo-title {
+        font-size: 32px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .algo-subtitle {
+        color: var(--text2);
+        margin-top: 8px;
+      }
+
+      .algo-info {
+        min-width: 260px;
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+        color: var(--text);
+      }
+
+      .algo-info p {
+        margin: 6px 0;
+        color: var(--text2);
+        font-size: 13px;
+      }
+
+      .algo-panel {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        margin-bottom: 18px;
+        overflow: hidden;
+      }
+
+      .algo-panel-head {
+        padding: 12px 16px;
+        background: var(--bg3);
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .algo-panel-body {
+        padding: 16px;
+        color: var(--text2);
+      }
+
+      .algo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 14px;
+      }
+
+      .skill-tile {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+      }
+
+      .skill-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .skill-name {
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .rank-badge {
+        font-size: 11px;
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: rgba(124, 106, 247, 0.16);
+        color: var(--accent2);
+      }
+
+      .progress-wrap {
+        margin-bottom: 12px;
+      }
+
+      .progress-top {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 12px;
+        color: var(--text2);
+      }
+
+      .level-badge {
+        display: inline-block;
+        margin-bottom: 12px;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 999px;
+      }
+
+      .level-advanced {
+        background: rgba(52, 199, 122, 0.16);
+        color: var(--green);
+      }
+
+      .level-intermediate {
+        background: rgba(245, 166, 35, 0.16);
+        color: var(--amber);
+      }
+
+      .level-beginner {
+        background: rgba(124, 106, 247, 0.16);
+        color: var(--accent2);
+      }
+
+      .tile-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .tile-actions .btn {
+        flex: 1;
+        text-align: center;
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+
+      .algo-nav {
+        display: flex;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      pre {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        color: var(--text2);
+        padding: 14px;
+        border-radius: 10px;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+
+      @media (max-width: 820px) {
+        .algo-header {
+          flex-direction: column;
+        }
+
+        .algo-info {
+          min-width: auto;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="algo-page">
+      <div class="algo-header">
+        <div>
+          <h1 class="algo-title">Sorted Skills</h1>
+          <p class="algo-subtitle">
+            Skills ranked by progress using Merge Sort Algorithm
+          </p>
         </div>
-        <div class="col-lg-4">
-            <div class="card bg-light">
-                <div class="card-body">
-                    <h5 class="card-title">Algorithm Info</h5>
-                    <p class="mb-1"><strong>Algorithm:</strong> {{ algorithm_name }}</p>
-                    <p class="mb-1"><strong>Time Complexity:</strong> <span class="badge bg-info">{{ algorithm_complexity }}</span></p>
-                    <p class="mb-0"><strong>Total Skills:</strong> {{ total_skills }}</p>
-                </div>
-            </div>
+        <div class="algo-info">
+          <p><strong>Algorithm:</strong> {{ algorithm_name }}</p>
+          <p><strong>Time Complexity:</strong> {{ algorithm_complexity }}</p>
+          <p><strong>Total Skills:</strong> {{ total_skills }}</p>
         </div>
-    </div>
+      </div>
 
-    <!-- Algorithm Explanation Card -->
-    <div class="row mb-4">
-        <div class="col-lg-12">
-            <div class="card border-left-primary">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">🔍 How Merge Sort Works</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6>Algorithm Steps:</h6>
-                            <ol>
-                                <li><strong>Divide:</strong> Split skills list into halves recursively</li>
-                                <li><strong>Conquer:</strong> Sort each half independently</li>
-                                <li><strong>Merge:</strong> Combine sorted halves back together</li>
-                            </ol>
-                        </div>
-                        <div class="col-md-6">
-                            <h6>Performance Characteristics:</h6>
-                            <ul>
-                                <li><strong>Best Case:</strong> O(n log n)</li>
-                                <li><strong>Average Case:</strong> O(n log n)</li>
-                                <li><strong>Worst Case:</strong> O(n log n)</li>
-                                <li><strong>Space Complexity:</strong> O(n)</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <hr>
-                    <p class="mb-0"><em>{{ description }}</em></p>
-                </div>
-            </div>
+      <div class="algo-panel">
+        <div class="algo-panel-head">How Merge Sort Works</div>
+        <div class="algo-panel-body">
+          <p>Divide: split skills recursively into halves.</p>
+          <p>Conquer: sort each half independently.</p>
+          <p>Merge: combine sorted halves into final ranking.</p>
+          <p><em>{{ description }}</em></p>
         </div>
-    </div>
+      </div>
 
-    <!-- Sorted Skills Table -->
-    <div class="row">
-        <div class="col-lg-12">
-            {% if sorted_skills %}
-            <div class="row">
-                {% for skill in sorted_skills %}
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="card h-100 shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h5 class="card-title">{{ skill.name }}</h5>
-                                <span class="badge bg-primary">Rank #{{ skill.rank }}</span>
-                            </div>
+      {% if sorted_skills %}
+      <div class="algo-grid">
+        {% for skill in sorted_skills %}
+        <div class="skill-tile">
+          <div class="skill-row">
+            <div class="skill-name">{{ skill.name }}</div>
+            <span class="rank-badge">Rank #{{ skill.rank }}</span>
+          </div>
 
-                            <!-- Progress Bar -->
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <small class="text-muted">Progress</small>
-                                    <span class="badge bg-success">{{ skill.progress }}%</span>
-                                </div>
-                                <div class="progress" style="height: 25px;">
-                                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ skill.progress }}%" aria-valuenow="{{ skill.progress }}" aria-valuemin="0" aria-valuemax="100">
-                                        {{ skill.progress }}%
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Proficiency Level -->
-                            <div class="mb-3">
-                                {% if skill.progress >= 80 %}
-                                <span class="badge bg-success">🎯 Advanced</span> {% elif skill.progress >= 50 %}
-                                <span class="badge bg-warning text-dark">📈 Intermediate</span> {% else %}
-                                <span class="badge bg-info">🌱 Beginner</span> {% endif %}
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="btn-group w-100" role="group">
-                                <a href="{{ url_for('auth.edit_skill', skill_id=skill.id) }}" class="btn btn-sm btn-outline-primary">
-                                            ✏️ Edit
-                                        </a>
-                                <a href="{{ url_for('auth.track_progress') }}" class="btn btn-sm btn-outline-info">
-                                            📊 Track
-                                        </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
+          <div class="progress-wrap">
+            <div class="progress-top">
+              <span>Progress</span><span>{{ skill.progress }}%</span>
             </div>
-            {% else %}
-            <div class="alert alert-info" role="alert">
-                <h4 class="alert-heading">No Skills Found</h4>
-                <p>You haven't added any skills yet. <a href="{{ url_for('auth.add_skill') }}" class="alert-link">Add your first skill</a></p>
+            <div class="prog-bg">
+              <div
+                class="prog-fill"
+                style="width: {{ skill.progress }}%; background: {% if skill.progress >= 80 %}var(--green){% elif skill.progress >= 50 %}var(--amber){% else %}var(--accent){% endif %};"
+              ></div>
             </div>
-            {% endif %}
+          </div>
+
+          {% if skill.progress >= 80 %}
+          <span class="level-badge level-advanced">Advanced</span>
+          {% elif skill.progress >= 50 %}
+          <span class="level-badge level-intermediate">Intermediate</span>
+          {% else %}
+          <span class="level-badge level-beginner">Beginner</span>
+          {% endif %}
+
+          <div class="tile-actions">
+            <a
+              href="{{ url_for('auth.edit_skill', skill_id=skill.id) }}"
+              class="btn btn-secondary"
+              >Edit</a
+            >
+            <a
+              href="{{ url_for('auth.track_progress') }}"
+              class="btn btn-primary"
+              >Track</a
+            >
+          </div>
         </div>
-    </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="algo-panel">
+        <div class="algo-panel-body">
+          No skills found.
+          <a href="{{ url_for('auth.add_skill') }}">Add your first skill</a>.
+        </div>
+      </div>
+      {% endif %}
 
-    <!-- Code Example Card -->
-    <div class="row mt-5">
-        <div class="col-lg-12">
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0">💻 Code Implementation</h5>
-                </div>
-                <div class="card-body">
-                    <pre><code>
-# Merge Sort Implementation
+      <div class="algo-panel" style="margin-top: 18px">
+        <div class="algo-panel-head">Code Implementation</div>
+        <div class="algo-panel-body">
+          <pre><code># Merge Sort Implementation
 from skilltracker.algorithms import merge_sort_skills
 
-# Fetch skills from database
 skills = [
     {"id": 1, "name": "Python", "progress": 70},
     {"id": 2, "name": "JavaScript", "progress": 45},
     {"id": 3, "name": "SQL", "progress": 90}
 ]
 
-# Apply merge sort (O(n log n) complexity)
-sorted_skills = merge_sort_skills(skills, key='progress', reverse=True)
-
-# Result: [SQL(90%), Python(70%), JavaScript(45%)]
-                    </code></pre>
-                </div>
-            </div>
+sorted_skills = merge_sort_skills(skills, key='progress', reverse=True)</code></pre>
         </div>
-    </div>
+      </div>
 
-    <!-- Navigation -->
-    <div class="row mt-4">
-        <div class="col-lg-12">
-            <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-secondary">← Back to Dashboard</a>
-            <a href="{{ url_for('auth.skill_recommendations') }}" class="btn btn-success">View Recommendations →</a>
-        </div>
+      <div class="algo-nav">
+        <a href="{{ url_for('auth.user_dashboard') }}" class="btn btn-secondary"
+          >Back to Dashboard</a
+        >
+        <a
+          href="{{ url_for('auth.skill_recommendations') }}"
+          class="btn btn-primary"
+          >View Recommendations</a
+        >
+      </div>
     </div>
-</div>
-
-<style>
-    .border-left-primary {
-        border-left: 4px solid #3498db;
-    }
-    
-    .card {
-        transition: transform 0.2s;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    pre {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 5px;
-        overflow-x: auto;
-    }
-    
-    code {
-        color: #333;
-        font-size: 0.9rem;
-    }
-</style>
-{% endblock %}
+  </body>
+</html>

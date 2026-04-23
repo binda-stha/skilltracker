@@ -1,201 +1,243 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Settings – SkillTracker Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin_style.css') }}"
+    />
     <style>
-         :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f4;
-            --text-primary: #1a1a18;
-            --text-secondary: #6b6b67;
-            --border-t: rgba(0, 0, 0, 0.08);
-        }
-        
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .header {
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            font-weight: 500;
-        }
-        
-        .settings-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .settings-section h3 {
-            margin-bottom: 16px;
-            font-size: 16px;
-        }
-        
-        .setting-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-t);
-        }
-        
-        .setting-item:last-child {
-            border-bottom: none;
-        }
-        
-        .setting-label {}
-        
-        .setting-label-text {
-            font-weight: 500;
-        }
-        
-        .setting-label-desc {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-        
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            padding: 8px 16px;
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-        
-        .back-link:hover {
-            background: #e8e8e5;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 6px;
-            border: 1px solid var(--border-t);
-            background: white;
-            color: var(--text-primary);
-            cursor: pointer;
-            font-family: 'DM Sans', sans-serif;
-            transition: background 0.2s;
-        }
-        
-        .btn:hover {
-            background: var(--bg-secondary);
-        }
-        
-        .btn-danger {
-            border-color: #fca5a5;
-            color: #991b1b;
-            background: #fdecea;
-        }
-        
-        .btn-danger:hover {
-            background: #fccccc;
-        }
+      :root {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f5f5f4;
+        --text-primary: #1a1a18;
+        --text-secondary: #6b6b67;
+        --border-t: rgba(0, 0, 0, 0.08);
+      }
+
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        font-weight: 500;
+      }
+
+      .settings-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .settings-section h3 {
+        margin-bottom: 16px;
+        font-size: 16px;
+      }
+
+      .setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-t);
+      }
+
+      .setting-item:last-child {
+        border-bottom: none;
+      }
+
+      .setting-label {
+      }
+
+      .setting-label-text {
+        font-weight: 500;
+      }
+
+      .setting-label-desc {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        padding: 8px 16px;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background 0.2s;
+      }
+
+      .back-link:hover {
+        background: #e8e8e5;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        border: 1px solid var(--border-t);
+        background: white;
+        color: var(--text-primary);
+        cursor: pointer;
+        font-family: "DM Sans", sans-serif;
+        transition: background 0.2s;
+      }
+
+      .btn:hover {
+        background: var(--bg-secondary);
+      }
+
+      .btn-danger {
+        border-color: #fca5a5;
+        color: #991b1b;
+        background: #fdecea;
+      }
+
+      .btn-danger:hover {
+        background: #fccccc;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="container">
-        <a href="{{ url_for('auth.admin_dashboard') }}" class="back-link">← Back to Dashboard</a>
+      <a href="{{ url_for('auth.admin_dashboard') }}" class="back-link"
+        >← Back to Dashboard</a
+      >
 
-        <div class="header">
-            <h1>System Settings</h1>
-            <p style="color: var(--text-secondary); margin-top: 5px;">Manage application settings and configuration</p>
+      <div class="header">
+        <h1>System Settings</h1>
+        <p style="color: var(--text-secondary); margin-top: 5px">
+          Manage application settings and configuration
+        </p>
+      </div>
+
+      <div class="settings-section">
+        <h3>Application</h3>
+
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-label-text">Database Connection</div>
+            <div class="setting-label-desc">
+              Status and configuration of the database
+            </div>
+          </div>
+          <span
+            style="
+              color: #166534;
+              background: #e6f4ec;
+              padding: 4px 12px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: 500;
+            "
+            >Connected</span
+          >
         </div>
 
-        <div class="settings-section">
-            <h3>Application</h3>
-
-            <div class="setting-item">
-                <div class="setting-label">
-                    <div class="setting-label-text">Database Connection</div>
-                    <div class="setting-label-desc">Status and configuration of the database</div>
-                </div>
-                <span style="color: #166534; background: #e6f4ec; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 500;">Connected</span>
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-label-text">API Status</div>
+            <div class="setting-label-desc">
+              RESTful API endpoints availability
             </div>
+          </div>
+          <span
+            style="
+              color: #166534;
+              background: #e6f4ec;
+              padding: 4px 12px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: 500;
+            "
+            >Operational</span
+          >
+        </div>
+      </div>
 
-            <div class="setting-item">
-                <div class="setting-label">
-                    <div class="setting-label-text">API Status</div>
-                    <div class="setting-label-desc">RESTful API endpoints availability</div>
-                </div>
-                <span style="color: #166534; background: #e6f4ec; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 500;">Operational</span>
+      <div class="settings-section">
+        <h3>User Management</h3>
+
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-label-text">Auto-registration</div>
+            <div class="setting-label-desc">
+              Allow new users to self-register
             </div>
+          </div>
+          <input type="checkbox" checked />
         </div>
 
-        <div class="settings-section">
-            <h3>User Management</h3>
-
-            <div class="setting-item">
-                <div class="setting-label">
-                    <div class="setting-label-text">Auto-registration</div>
-                    <div class="setting-label-desc">Allow new users to self-register</div>
-                </div>
-                <input type="checkbox" checked>
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-label-text">Email Verification</div>
+            <div class="setting-label-desc">
+              Require email verification on signup
             </div>
+          </div>
+          <input type="checkbox" />
+        </div>
+      </div>
 
-            <div class="setting-item">
-                <div class="setting-label">
-                    <div class="setting-label-text">Email Verification</div>
-                    <div class="setting-label-desc">Require email verification on signup</div>
-                </div>
-                <input type="checkbox">
+      <div class="settings-section">
+        <h3>System Maintenance</h3>
+
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-label-text">Cache Management</div>
+            <div class="setting-label-desc">
+              Clear application cache to free up memory
             </div>
+          </div>
+          <button class="btn">Clear Cache</button>
         </div>
 
-        <div class="settings-section">
-            <h3>System Maintenance</h3>
-
-            <div class="setting-item">
-                <div class="setting-label">
-                    <div class="setting-label-text">Cache Management</div>
-                    <div class="setting-label-desc">Clear application cache to free up memory</div>
-                </div>
-                <button class="btn">Clear Cache</button>
-            </div>
-
-            <div class="setting-item">
-                <div class="setting-label">
-                    <div class="setting-label-text">Database Optimization</div>
-                    <div class="setting-label-desc">Run database maintenance tasks</div>
-                </div>
-                <button class="btn">Optimize</button>
-            </div>
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-label-text">Database Optimization</div>
+            <div class="setting-label-desc">Run database maintenance tasks</div>
+          </div>
+          <button class="btn">Optimize</button>
         </div>
+      </div>
 
-        <div class="settings-section">
-            <h3>Danger Zone</h3>
+      <div class="settings-section">
+        <h3>Danger Zone</h3>
 
-            <div class="setting-item">
-                <div class="setting-label">
-                    <div class="setting-label-text">Delete All Logs</div>
-                    <div class="setting-label-desc">Permanently delete all skill logs (cannot be undone)</div>
-                </div>
-                <button class="btn btn-danger">Delete</button>
+        <div class="setting-item">
+          <div class="setting-label">
+            <div class="setting-label-text">Delete All Logs</div>
+            <div class="setting-label-desc">
+              Permanently delete all skill logs (cannot be undone)
             </div>
+          </div>
+          <button class="btn btn-danger">Delete</button>
         </div>
+      </div>
     </div>
-</body>
-
+  </body>
 </html>

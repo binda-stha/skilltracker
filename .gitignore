@@ -48,6 +48,13 @@ env/
 ._*
 .Spotlight-V100
 .Trashes
+
+# Database & Runtime
+logs/
+flask_session/
+*.db
+*.sqlite
+*.sqlite3
 ehthumbs.db
 Thumbs.db
 

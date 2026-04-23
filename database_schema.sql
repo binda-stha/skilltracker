@@ -168,11 +168,11 @@ INSERT IGNORE INTO roles (role_ID, role_name, description) VALUES
 
 -- Insert test admin user (password: admin123)
 INSERT IGNORE INTO users (email, password, role_ID, first_name, last_name) VALUES
-('admin@skilltracker.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LeCt1uLjRp2lMiO/u', 1, 'System', 'Administrator');
+('admin@skilltracker.com', 'pbkdf2:sha256:600000$ekUJppLAJqtzXqMs$7fece26823b5df9cb8d6dcb2e48b0d574b7d5b1f95d2e95533a7431d59ebc6b5', 1, 'System', 'Administrator');
 
 -- Insert test regular user (password: password123)
 INSERT IGNORE INTO users (email, password, role_ID, first_name, last_name) VALUES
-('student@skilltracker.com', '$2b$12$e6p5vQKpMqfVKBPgzL.5Re.8Q9pKjJcKvJcKvJcKvJcKvJcKvJcKv', 2, 'John', 'Doe');
+('student@skilltracker.com', 'pbkdf2:sha256:600000$enUKUJukb57m7ihe$074e7ee86c72bb2f25195bbc6299cfcfb00a635320dbde99912ae5834cb73bab', 2, 'John', 'Doe');
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);

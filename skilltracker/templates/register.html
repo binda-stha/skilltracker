@@ -23,11 +23,15 @@
             <h1>Welcome to SkillTracker</h1>
             <p>Register and start tracking your skills today.</p>
 
-            {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
             <div class="alert alert-{{ category }}">
                 {{ message }}
             </div>
-            {% endfor %} {% endif %} {% endwith %}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
 
             <form method="POST" action="{{ url_for('auth.register') }}">
                 <label for="email">Enter your Email</label>
